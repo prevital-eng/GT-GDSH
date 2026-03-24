@@ -1,0 +1,1061 @@
+<!--
+================================================================
+  GimlaTech — מדריך שירותים ממשלתיים דיגיטליים
+  © 2026 רויטל פלד / Revital Peled. All Rights Reserved.
+
+  נבנה בסיוע Claude AI | 2026
+================================================================
+-->
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GimlaTech — שירותים ממשלתיים</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #273549;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --success: #34d399;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --border: #334155;
+  --wa: #25d366;
+  --gov: #3b82f6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ══ DESKTOP ══ */
+.page-wrap { display: flex; min-height: 100vh; }
+.sidebar { display: none; }
+.app {
+  width: 100%; max-width: 520px; min-height: 100vh;
+  display: flex; flex-direction: column; position: relative;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  body { background: #070f1d; }
+  .page-wrap { align-items: stretch; justify-content: center; gap: 0; }
+  .sidebar {
+    display: flex; flex-direction: column; justify-content: center;
+    width: 340px; flex-shrink: 0;
+    padding: 48px 40px;
+    background: linear-gradient(160deg, #0f1e35 0%, #0a1628 100%);
+    border-left: 1px solid #1e3a5f;
+  }
+  .sidebar-logo { font-size: 32px; font-weight: 900; margin-bottom: 8px; }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-tag {
+    display: inline-block; background: rgba(56,189,248,0.12);
+    border: 1px solid rgba(56,189,248,0.3); color: var(--accent);
+    font-size: 11px; font-weight: 700; padding: 4px 12px;
+    border-radius: 20px; margin-bottom: 28px;
+  }
+  .sidebar-desc { font-size: 15px; color: #94a3b8; line-height: 1.8; margin-bottom: 32px; }
+  .sidebar-steps { display: flex; flex-direction: column; gap: 14px; }
+  .sidebar-step { display: flex; align-items: center; gap: 12px; }
+  .sidebar-step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(56,189,248,0.15); border: 1.5px solid rgba(56,189,248,0.4);
+    color: var(--accent); font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sidebar-step-text { font-size: 13px; color: #64748b; }
+  .app {
+    max-width: 480px; flex-shrink: 0;
+    border-right: 1px solid #1e293b;
+    border-left: 1px solid #1e293b;
+    background: var(--bg);
+  }
+  .modal-box { border-radius: 16px; margin-bottom: 40px; }
+  .modal-overlay { align-items: center; }
+}
+
+/* ══ HEADER ══ */
+.header {
+  padding: 20px 20px 16px;
+  background: linear-gradient(180deg, #0f172a 0%, transparent 100%);
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(12px);
+}
+.logo-row { display: flex; align-items: center; gap: 10px; }
+.logo-icon { font-size: 26px; }
+.logo-text { font-size: 19px; font-weight: 900; letter-spacing: -0.5px; }
+.logo-text span { color: var(--accent); }
+.logo-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+.breadcrumb { display: flex; align-items: center; gap: 6px; margin-top: 10px; min-height: 22px; flex-wrap: wrap; }
+.crumb { font-size: 12px; color: var(--muted); }
+.crumb.active { color: var(--accent); font-weight: 700; }
+.crumb-sep { color: var(--border); font-size: 12px; }
+
+/* ══ BODY ══ */
+.body { flex: 1; padding: 4px 18px 90px; overflow-y: auto; }
+.screen { display: none; animation: fadeUp 0.25s ease; }
+.screen.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.screen-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+.screen-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+/* ══ SCREEN 1 — חיפוש חופשי + בחירת נושא ══ */
+.free-search-box {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 14px 4px 8px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+.free-search-box:focus-within { border-color: var(--accent); }
+.free-search-box input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 15px; font-family: 'Heebo', sans-serif;
+  color: var(--text); padding: 12px 0;
+  direction: rtl; min-width: 0;
+}
+.free-search-box input::placeholder { color: var(--muted); }
+.search-go {
+  background: var(--accent); border: none; border-radius: 10px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.search-go:hover { background: #7dd3fc; }
+.search-go:disabled { background: var(--border); cursor: default; }
+
+.divider-label {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; color: var(--muted); font-size: 12px; font-weight: 700;
+}
+.divider-label::before, .divider-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* קטגוריות ראשיות */
+.cat-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 6px;
+}
+.cat-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 16px; padding: 16px 14px;
+  cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; gap: 12px;
+}
+.cat-card:hover, .cat-card.sel {
+  border-color: var(--accent); background: var(--surface2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56,189,248,0.12);
+}
+.cat-card .cat-icon { font-size: 26px; flex-shrink: 0; }
+.cat-card .cat-label { font-size: 14px; font-weight: 700; }
+.cat-card .cat-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* תוצאות חיפוש חופשי */
+.free-results { margin-bottom: 14px; }
+.results-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 700; }
+.result-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 8px; cursor: pointer;
+  transition: all 0.15s; text-align: right;
+}
+.result-card:hover { border-color: var(--accent2); background: var(--surface2); }
+.result-card .r-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.result-card .r-meta { font-size: 12px; color: var(--muted); }
+.result-card mark { background: rgba(56,189,248,0.25); color: var(--accent); border-radius: 3px; padding: 0 2px; font-style: normal; }
+
+/* ══ SCREEN 2 — תת-קטגוריות ══ */
+.sub-list { display: flex; flex-direction: column; gap: 9px; }
+.sub-btn {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 14px; padding: 15px 18px;
+  cursor: pointer; display: flex; align-items: center; gap: 14px;
+  transition: all 0.15s; color: var(--text); width: 100%;
+  text-align: right; font-family: 'Heebo', sans-serif;
+}
+.sub-btn:hover, .sub-btn.sel {
+  border-color: var(--accent2); background: var(--surface2);
+  box-shadow: 0 4px 16px rgba(129,140,248,0.12);
+}
+.sub-btn .sub-icon { font-size: 24px; flex-shrink: 0; }
+.sub-btn .sub-label { font-size: 15px; font-weight: 700; }
+.sub-btn .sub-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ══ SCREEN 3 — תשובה ══ */
+.ai-box {
+  background: linear-gradient(135deg, #0c2340 0%, #1a1040 100%);
+  border: 1.5px solid rgba(129,140,248,0.4);
+  border-radius: 16px; padding: 18px;
+  margin-bottom: 14px; position: relative; overflow: hidden;
+}
+.ai-box::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(129,140,248,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.ai-badge { background: var(--accent2); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.ai-typing { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.dots span { display: inline-block; width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: bounce 1.2s infinite; margin: 0 2px; }
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+/* שאלה חופשית במסך תשובה */
+.followup-box {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 14px; display: flex; align-items: center; gap: 10px;
+  padding: 4px 14px 4px 8px; margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.followup-box:focus-within { border-color: var(--accent); }
+.followup-box input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 14px; font-family: 'Heebo', sans-serif;
+  color: var(--text); padding: 10px 0; direction: rtl;
+}
+.followup-box input::placeholder { color: var(--muted); }
+
+.ai-step { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.ai-step-num { background: var(--accent2); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.ai-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.65; }
+.ai-tip { background: rgba(251,191,36,0.1); border-right: 3px solid #fbbf24; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #fde68a; margin-top: 12px; }
+.ai-content { font-size: 14px; line-height: 1.8; color: #cbd5e1; white-space: pre-wrap; }
+
+.can-box {
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+  border-right: 3px solid;
+}
+.can-box.yes { background: rgba(52,211,153,0.08); border-color: var(--success); }
+.can-box.no  { background: rgba(248,113,113,0.08); border-color: #f87171; }
+.can-box-title { font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.can-box.yes .can-box-title { color: var(--success); }
+.can-box.no  .can-box-title { color: #f87171; }
+.can-box ul { padding-right: 16px; }
+.can-box li { font-size: 13px; color: var(--muted); margin-bottom: 4px; line-height: 1.5; }
+
+.link-btn-row { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
+.gov-link {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--text); text-decoration: none;
+  padding: 11px 14px; border-radius: 12px;
+  font-size: 13px; font-weight: 700;
+  transition: all 0.15s;
+}
+.gov-link:hover { border-color: var(--gov); color: #93c5fd; }
+.gov-link.primary { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); color: #93c5fd; }
+
+.db-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--success); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
+
+/* כפתורים */
+.btn-back {
+  background: none; border: none; color: var(--accent);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  padding: 0; margin-bottom: 18px;
+  font-family: 'Heebo', sans-serif;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-back:hover { color: #7dd3fc; }
+.btn-reset {
+  width: 100%; padding: 13px; border-radius: 14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--muted); font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: 'Heebo', sans-serif;
+  transition: all 0.15s; margin-top: 8px;
+}
+.btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ══ WA BAR ══ */
+.wa-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(15,23,42,0.95); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border); padding: 10px 18px; z-index: 20;
+}
+
+/* ══ MODAL ══ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 100; backdrop-filter: blur(4px);
+}
+.modal-box {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px; width: 100%; max-width: 480px;
+  border-top: 1px solid var(--border);
+}
+.modal-title { font-size: 17px; font-weight: 900; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.modal-input {
+  width: 100%; padding: 13px 16px; border-radius: 12px;
+  border: 2px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: 18px; font-family: 'Heebo', sans-serif;
+  outline: none; letter-spacing: 1px; text-align: center; margin-bottom: 8px;
+}
+.modal-input:focus { border-color: var(--wa); }
+.modal-error { color: #fca5a5; font-size: 12px; text-align: center; min-height: 18px; margin-bottom: 10px; }
+.modal-send {
+  width: 100%; padding: 14px; border-radius: 14px;
+  background: var(--wa); border: none; color: white;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  font-family: 'Heebo', sans-serif; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.modal-send:hover { background: #20b858; }
+.modal-cancel {
+  width: 100%; padding: 11px; border-radius: 12px;
+  background: none; border: 1.5px solid var(--border);
+  color: var(--muted); font-size: 14px; cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+}
+.modal-cancel:hover { border-color: var(--accent); color: var(--accent); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ══ SIDEBAR (desktop only) ══ -->
+<div class="sidebar">
+  <div class="sidebar-logo">Gimla<span>Tech</span></div>
+  <div class="sidebar-tag">🏛️ שירותים ממשלתיים דיגיטליים</div>
+  <div class="sidebar-desc">מדריך ממוקד לניווט בשירותים הממשלתיים — צעד אחר צעד, בשפה פשוטה, עם קישורים ישירים.</div>
+  <div class="sidebar-steps">
+    <div class="sidebar-step"><div class="sidebar-step-num">1</div><div class="sidebar-step-text">כתבו שאלה חופשית — או בחרו נושא</div></div>
+    <div class="sidebar-step"><div class="sidebar-step-num">2</div><div class="sidebar-step-text">בחרו את השירות המתאים</div></div>
+    <div class="sidebar-step"><div class="sidebar-step-num">3</div><div class="sidebar-step-text">קבלו מדריך + עזרת AI</div></div>
+  </div>
+  <div style="margin-top:auto;padding-top:40px;font-size:11px;color:#334155;line-height:1.7">
+    © 2026 רויטל פלד / Revital Peled<br>
+    All Rights Reserved<br>
+    <span style="color:#1e3a5f">נבנה בסיוע Claude AI</span>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-row">
+      <span class="logo-icon">🏛️</span>
+      <div>
+        <div class="logo-text">Gimla<span>Tech</span></div>
+        <div class="logo-sub">שירותים ממשלתיים דיגיטליים</div>
+      </div>
+      <span onclick="document.getElementById('about-modal').classList.remove('hidden')"
+        style="margin-right:auto;font-size:10px;color:#1e3a5f;font-weight:500;cursor:pointer">© Revital Peled 2026</span>
+    </div>
+    <div class="breadcrumb" id="breadcrumb"></div>
+  </div>
+
+  <div class="body">
+
+    <!-- ══ מסך 1: חיפוש + בחירת נושא ══ -->
+    <div class="screen active" id="s1">
+      <div class="screen-title">במה לעזור?</div>
+      <div class="screen-sub">כתבו שאלה חופשית — או בחרו נושא</div>
+
+      <!-- חיפוש חופשי -->
+      <div class="free-search-box">
+        <div class="search-go" onclick="doFreeSearch()">🔍</div>
+        <input type="text" id="free-input"
+          placeholder="לדוגמה: איך מגישים תביעה לקצבת זקנה?"
+          oninput="onFreeInput()" onkeydown="if(event.key==='Enter')doFreeSearch()">
+      </div>
+
+      <!-- תוצאות חיפוש חופשי -->
+      <div id="free-results" class="free-results"></div>
+
+      <!-- OR -->
+      <div class="divider-label" id="or-divider">או בחרו נושא</div>
+
+      <!-- רשת קטגוריות -->
+      <div class="cat-grid" id="cat-grid">
+        <div class="cat-card" onclick="selectCat('btl')">
+          <div class="cat-icon">🏦</div>
+          <div><div class="cat-label">ביטוח לאומי</div><div class="cat-desc">קצבאות, תביעות, גמלאות</div></div>
+        </div>
+        <div class="cat-card" onclick="selectCat('health')">
+          <div class="cat-icon">🏥</div>
+          <div><div class="cat-label">בריאות</div><div class="cat-desc">קופות חולים, בתי חולים</div></div>
+        </div>
+        <div class="cat-card" onclick="selectCat('id')">
+          <div class="cat-icon">🔑</div>
+          <div><div class="cat-label">הזדהות ממשלתית</div><div class="cat-desc">כניסה לשירותים ומסמכים</div></div>
+        </div>
+        <div class="cat-card" onclick="selectCat('tax')">
+          <div class="cat-icon">📄</div>
+          <div><div class="cat-label">מיסים ומסמכים</div><div class="cat-desc">מס הכנסה, אישורים</div></div>
+        </div>
+        <div class="cat-card" onclick="selectCat('transport')">
+          <div class="cat-icon">🚗</div>
+          <div><div class="cat-label">תחבורה</div><div class="cat-desc">רישיון, רכב, דרכון</div></div>
+        </div>
+        <div class="cat-card" onclick="selectCat('housing')">
+          <div class="cat-icon">🏠</div>
+          <div><div class="cat-label">מגורים ועירייה</div><div class="cat-desc">כתובת, ארנונה, עיר</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ מסך 2: תת-קטגוריה ══ -->
+    <div class="screen" id="s2">
+      <button class="btn-back" onclick="goBack(1)">← חזרה</button>
+      <div class="screen-title" id="s2-title"></div>
+      <div class="screen-sub">בחרו את הנושא המדויק</div>
+      <div class="sub-list" id="sub-list"></div>
+    </div>
+
+    <!-- ══ מסך 3: תשובה מלאה ══ -->
+    <div class="screen" id="s3">
+      <button class="btn-back" id="s3-back-btn" onclick="goBack(2)">← חזרה</button>
+
+      <!-- תשובה סטטית מהמאגר -->
+      <div id="static-answer"></div>
+
+      <!-- קופסת שאלה חופשית -->
+      <div class="followup-box" id="followup-area">
+        <div class="search-go" onclick="doFollowup()">🤖</div>
+        <input type="text" id="followup-input"
+          placeholder="שאלו שאלה נוספת..."
+          onkeydown="if(event.key==='Enter')doFollowup()">
+      </div>
+
+      <!-- AI תשובה -->
+      <div id="ai-area" class="hidden">
+        <div class="ai-box">
+          <div class="ai-header">
+            <span class="ai-badge">✨ בינה מלאכותית</span>
+          </div>
+          <div id="ai-typing" class="ai-typing hidden">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>מחשב תשובה...</span>
+          </div>
+          <div id="ai-content"></div>
+        </div>
+      </div>
+
+      <button class="btn-reset" onclick="resetAll()">🔄 נושא חדש</button>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- WA bar -->
+  <div class="wa-bar">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <span style="font-size:13px;color:var(--muted);">לא מצאת? פני לגימלאטק:</span>
+      <a href="https://wa.me/972503960685" target="_blank" style="
+        display:flex;align-items:center;justify-content:center;gap:6px;
+        background:var(--wa);color:white;text-decoration:none;
+        padding:9px 16px;border-radius:20px;font-weight:700;font-size:13px;
+        font-family:'Heebo',sans-serif;white-space:nowrap;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        0503960685
+      </a>
+    </div>
+  </div>
+
+  <!-- copyright footer -->
+  <div style="text-align:center;padding:10px 18px 6px;border-top:1px solid #1e293b">
+    <button onclick="document.getElementById('about-modal').classList.remove('hidden')"
+      style="background:none;border:none;color:#334155;font-size:11px;cursor:pointer;font-family:'Heebo',sans-serif;">
+      © 2026 רויטל פלד &nbsp;·&nbsp; 🛡️ זכויות יוצרים
+    </button>
+  </div>
+  <div style="background:#0c1a2e;border-top:1px solid #1e3a5f;padding:8px 18px;text-align:center;font-size:11px;color:#38bdf8;letter-spacing:0.3px">
+    🛡️ כלי זה מוגן בזכויות יוצרים &nbsp;|&nbsp; © Revital Peled 2026 &nbsp;|&nbsp; All Rights Reserved
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div class="modal-overlay hidden" id="about-modal" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="modal-box" style="text-align:right;max-height:85vh;overflow-y:auto">
+      <div class="modal-title">🏛️ GimlaTech — שירותים ממשלתיים</div>
+      <div style="background:#0f172a;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:13px;color:#94a3b8;line-height:2">
+          <strong style="color:#38bdf8">יוצרת:</strong> רויטל פלד<br>
+          <strong style="color:#38bdf8">מטרה:</strong> הנגשת שירותים ממשלתיים דיגיטליים לאזרחים ותיקים<br>
+          <strong style="color:#38bdf8">מקור מידע:</strong> <a href="https://www.gov.il/he/services" target="_blank" style="color:#38bdf8">gov.il/he/services</a><br>
+          <strong style="color:#38bdf8">נבנה בסיוע:</strong> Claude AI מבית Anthropic
+        </div>
+      </div>
+      <div style="background:rgba(251,191,36,0.08);border-right:3px solid #fbbf24;padding:10px 12px;border-radius:8px;font-size:12px;color:#fde68a;margin-bottom:14px">
+        ⚠️ המדריך מספק מידע כללי בלבד. לייעוץ מקצועי יש לפנות ישירות לרשויות.
+      </div>
+      <div style="font-size:13px;color:#64748b;line-height:2;margin-bottom:14px">
+        📞 ביטוח לאומי: <strong style="color:#94a3b8">*6050</strong><br>
+        📞 שירות לאזרח: <strong style="color:#94a3b8">*2161</strong><br>
+        📞 מס הכנסה: <strong style="color:#94a3b8">*4954</strong><br>
+        📞 ותיקים — משרד שוויון חברתי: <strong style="color:#94a3b8">*8840</strong>
+      </div>
+      <button class="modal-cancel" onclick="document.getElementById('about-modal').classList.add('hidden')">סגור</button>
+    </div>
+  </div>
+
+  <!-- WA MODAL -->
+  <div class="modal-overlay hidden" id="wa-modal" onclick="if(event.target===this)closePhoneModal()">
+    <div class="modal-box">
+      <div class="modal-title">📲 שלח תשובה בוואטסאפ</div>
+      <div class="modal-sub">הכניסו את מספר הטלפון של המקבל</div>
+      <input class="modal-input" id="wa-phone-input" type="tel" placeholder="050-000-0000"
+        onkeydown="if(event.key==='Enter')sendWANow()">
+      <div class="modal-error" id="wa-modal-error"></div>
+      <button class="modal-send" onclick="sendWANow()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        שלח עכשיו
+      </button>
+      <button class="modal-cancel" onclick="closePhoneModal()">ביטול</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+</div><!-- /page-wrap -->
+
+<script>
+// ════════════════════════════════
+//  PROXY (Apps Script)
+// ════════════════════════════════
+var PROXY = 'https://script.google.com/macros/s/AKfycbxBdvVl8XsN24gU3qxY3iMzEr3SMHui0oicYByT6Z5H0r5y4mdf0_vm3RsOvOM0tw/exec';
+
+// ════════════════════════════════
+//  מאגר שירותים
+// ════════════════════════════════
+var DB = [
+  // ── ביטוח לאומי ──
+  {id:'btl-old', cat:'btl', icon:'👴',
+   title:'קצבת אזרח ותיק (זקנה)',
+   desc:'קצבה חודשית לגברים מגיל 67, נשים מגיל 62',
+   kw:['זקנה','ותיק','קצבה','פנסיה','גמלה','כסף','חודשי'],
+   steps:['גשו לאתר <strong>btl.gov.il</strong> ← "טפסים מקוונים" ← טופס <strong>1514</strong>.',
+          'מלאו פרטים אישיים + העלו: ספח ת"ז ואישור חשבון בנק.',
+          'שלחו. עקבו אחר הסטטוס ב"אזור האישי" — טיפול 2–3 שבועות.',
+          'תשלום ב-1 וב-26 לחודש. בדקו בלוח התשלומים.'],
+   tip:'💡 קיבלתם מכתב מביטוח לאומי על גיל הזכאות? לפעמים הקצבה נפתחת אוטומטית!',
+   canDo:['הגשת תביעה מקוונת','בדיקת סטטוס תביעה','עדכון חשבון בנק','לוח תשלומים'],
+   cantDo:['ייעוץ אישי על זכאות — התקשרו *6050','שינוי מועד קבלת קצבה'],
+   links:[{t:'אתר ביטוח לאומי',u:'https://www.btl.gov.il',p:true},{t:'טפסים מקוונים',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'},{t:'לוח תשלומים',u:'https://www.btl.gov.il/Pages/BenefitsPaymentDates.aspx'}],
+   ai:'אתה סייע בנושא קצבת אזרח ותיק (זקנה) מביטוח לאומי ישראל. זכאות: גברים 67+, נשים 62+ (עולה בהדרגה). הגשה: btl.gov.il, טופס 1514. מסמכים: ספח ת"ז + אישור בנק. תשלום ב-1 וב-26. ענה בעברית פשוטה ומעשית.'
+  },
+  {id:'btl-nursing', cat:'btl', icon:'🏥',
+   title:'קצבת סיעוד',
+   desc:'עזרה בבית לתלויים, שלוש רמות גמלה',
+   kw:['סיעוד','עזרה','בית','טיפול','מטפל','תלות','עזרה בבית'],
+   steps:['אתר btl.gov.il ← "טפסים מקוונים" ← טופס <strong>4840</strong>.',
+          'פקיד ביטוח לאומי יגיע לביתכם לבדיקת רמת התלות.',
+          'תיקבע רמה: חלקית / מלאה / מוגברת.',
+          'בחרו סוג גמלה: עובד מסיעוד / שובר לחברה / כסף לניהול עצמי.'],
+   tip:'💡 תארו את כל הקשיים בפירוט לפני הבדיקה — זה משפיע על הרמה!',
+   canDo:['הגשת תביעה ראשונית','בדיקת סטטוס','עדכון חשבון בנק'],
+   cantDo:['הבדיקה הרפואית חייבת פנים-אל-פנים','לא ניתן לבחור מטפל ספציפי אונליין'],
+   links:[{t:'קצבת סיעוד — מידע',u:'https://www.btl.gov.il/benefits/Nursing/Pages/default.aspx',p:true},{t:'טופס 4840',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא גמלת סיעוד מביטוח לאומי ישראל. טופס 4840. בדיקה רפואית בבית. שלוש רמות: חלקית/מלאה/מוגברת. שלוש אפשרויות: עובד סיעוד, שובר, כסף. ענה בעברית פשוטה.'
+  },
+  {id:'btl-income', cat:'btl', icon:'🤝',
+   title:'הבטחת הכנסה',
+   desc:'השלמת הכנסה לבעלי הכנסה נמוכה',
+   kw:['הכנסה','עוני','תמיכה','השלמה','גמלה','מינימום'],
+   steps:['btl.gov.il ← "טפסים מקוונים" ← טופס <strong>6114</strong>.',
+          'צרפו: ת"ז + ספח, אישורי הכנסה, אישור בנק.',
+          'ייקבע ראיון עם פקיד (אפשרי גם בטלפון).',
+          'דיווח חודשי על שינויים — דרך האזור האישי.'],
+   tip:'💡 גם אם עובדים — ייתכן שמגיע השלמת הכנסה. שווה לבדוק!',
+   canDo:['הגשת תביעה','דיווח חודשי','בדיקת סטטוס'],
+   cantDo:['לא ניתן לדלג על ראיון עם פקיד','לא ניתן לקבל מקדמה אונליין'],
+   links:[{t:'הבטחת הכנסה — מידע',u:'https://www.btl.gov.il/benefits/income_guarantee/Pages/default.aspx',p:true}],
+   ai:'אתה סייע בנושא הבטחת הכנסה מביטוח לאומי ישראל. טופס 6114. מסמכים: ת"ז, אישורי הכנסה, בנק. ראיון עם פקיד חובה. דיווח חודשי. ענה בעברית פשוטה.'
+  },
+  {id:'btl-disability', cat:'btl', icon:'♿',
+   title:'נכות כללית',
+   desc:'קצבת נכות לאנשים עם מוגבלות',
+   kw:['נכות','מוגבלות','נכה','קצבה','ועדה'],
+   steps:['btl.gov.il ← "טפסים מקוונים" ← טופס <strong>5130</strong>.',
+          'תיקבע ועדה רפואית לקביעת אחוז נכות.',
+          'לאחר ההחלטה ניתן לערער.',
+          'זכאים לשירותים נוספים: תג נכה, הנחות, שיקום.'],
+   tip:'💡 ניתן לפנות לייעוץ חינם ב"ענבר" — anbar.org.il',
+   canDo:['הגשת תביעה','בדיקת סטטוס','שליחת מסמכים'],
+   cantDo:['ועדה רפואית — פנים-אל-פנים בלבד','ערעור דורש הליך ידני'],
+   links:[{t:'נכות כללית — מידע',u:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx',p:true},{t:'ענבר — ייעוץ',u:'https://www.anbar.org.il'}],
+   ai:'אתה סייע בנושא קצבת נכות כללית מביטוח לאומי ישראל. טופס 5130. ועדה רפואית. ניתן לערער. שירותים נוספים: תג נכה, הנחות, שיקום. ענה בעברית פשוטה.'
+  },
+
+  // ── בריאות ──
+  {id:'health-clalit', cat:'health', icon:'💙',
+   title:'כללית — תורים ושירותים',
+   desc:'clalit.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['כללית','תור','רופא','בדיקה','מרשם','clalit'],
+   steps:['היכנסו ל-<strong>clalit.co.il</strong> עם מספר ת"ז וסיסמה.',
+          'קביעת תור: "תורים ← קביעת תור" ← בחרו רופא ← בחרו תאריך.',
+          'תוצאות בדיקות: "הבדיקות שלי" — מופיעות תוך 24–48 שעות.',
+          'הזמנת מרשם: "מרשמים" ← בחרו תרופה ← שלחו לאישור רופא.'],
+   tip:'💡 אין תורים? בדקו ביטולים בשעות הבוקר — לרוב מתפנים.',
+   canDo:['קביעת תורים','צפייה בבדיקות','הזמנת מרשמים','שיחת וידאו עם רופא'],
+   cantDo:['מצב חירום — התקשרו 101','החלפת קופה — רק ב-1.1 בנייר'],
+   links:[{t:'כללית — כניסה',u:'https://www.clalit.co.il',p:true},{t:'אפליקציית כללית',u:'https://www.clalit.co.il/he/info/Pages/clalit_app.aspx'}],
+   ai:'אתה סייע בנושא שירותי קופת חולים כללית (clalit.co.il). קביעת תורים, תוצאות בדיקות, הזמנת מרשמים, שיחת וידאו. ענה בעברית פשוטה.'
+  },
+  {id:'health-maccabi', cat:'health', icon:'💚',
+   title:'מכבי — תורים ושירותים',
+   desc:'maccabi4u.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['מכבי','תור','רופא','בדיקה','מרשם','maccabi'],
+   steps:['היכנסו ל-<strong>maccabi4u.co.il</strong> עם ת"ז וסיסמה.',
+          'קביעת תור: "קביעת תור" ← בחרו סוג/מומחה ← תאריך.',
+          'תוצאות בדיקות: "הבריאות שלי ← בדיקות".',
+          'הזמנת מרשם: "מרשמים" ← חידוש מרשם קיים.'],
+   tip:'💡 מכבי מציעה שיחת וידאו עם רופא — מהירה לשאלות פשוטות.',
+   canDo:['קביעת תורים','בדיקות ומרשמים','שיחת וידאו','הורדת מסמכים רפואיים'],
+   cantDo:['חירום — 101','החלפת קופה — ב-1.1 בלבד'],
+   links:[{t:'מכבי — כניסה',u:'https://www.maccabi4u.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים מכבי (maccabi4u.co.il). קביעת תורים, בדיקות, מרשמים, שיחת וידאו. ענה בעברית פשוטה.'
+  },
+  {id:'health-leumit', cat:'health', icon:'🔵',
+   title:'לאומית — תורים ושירותים',
+   desc:'leumit.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['לאומית','תור','רופא','בדיקה','leumit'],
+   steps:['היכנסו ל-<strong>leumit.co.il</strong>.',
+          'קביעת תור: "תורים" ← בחרו קטגוריה ← רופא ← תאריך.',
+          'תוצאות בדיקות: "הפרופיל הבריאותי שלי".',
+          'הזמנת מרשם: "מרשמים חוזרים".'],
+   tip:'💡 לאומית מאפשרת גם ביטול/שינוי תור בהודעת SMS.',
+   canDo:['קביעת תורים','בדיקות ומרשמים','מסמכים רפואיים'],
+   cantDo:['חירום — 101','שינוי רופא משפחה — לרוב דורש פנייה לסניף'],
+   links:[{t:'לאומית — כניסה',u:'https://www.leumit.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים לאומית (leumit.co.il). קביעת תורים, בדיקות, מרשמים. ענה בעברית פשוטה.'
+  },
+  {id:'health-meuhedet', cat:'health', icon:'🟣',
+   title:'מאוחדת — תורים ושירותים',
+   desc:'meuhedet.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['מאוחדת','תור','רופא','בדיקה','meuhedet'],
+   steps:['היכנסו ל-<strong>meuhedet.co.il</strong>.',
+          'קביעת תור: "תורים" ← בחרו מחלקה ← רופא ← תאריך.',
+          'תוצאות בדיקות: "הפרופיל הרפואי".',
+          'הזמנת מרשם: "מרשמים" ← חידוש.'],
+   tip:'💡 מאוחדת מציעה אפליקציה נוחה לניהול כל השירותים.',
+   canDo:['קביעת תורים','בדיקות ומרשמים','מסמכים'],
+   cantDo:['חירום — 101'],
+   links:[{t:'מאוחדת — כניסה',u:'https://www.meuhedet.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים מאוחדת (meuhedet.co.il). קביעת תורים, בדיקות, מרשמים. ענה בעברית פשוטה.'
+  },
+  {id:'health-hospital', cat:'health', icon:'🏨',
+   title:'בתי חולים — תורים ואשפוז',
+   desc:'קביעת תור למרפאות, שחרור, ניהול אשפוז',
+   kw:['בית חולים','אשפוז','מרפאה','ניתוח','אמבולטורי','חוץ','שחרור'],
+   steps:['לחצו על לינק בית החולים הרלוונטי מהרשימה.',
+          'כניסה עם פרטי ת"ז ← חפשו "קביעת תור מרפאה".',
+          'לשחרור מאשפוז: בקשו "מכתב שחרור" דרך מערכת בית החולים.',
+          'ממתינים לניתוח? בדקו סטטוס רשימת המתנה דרך האתר.'],
+   tip:'💡 רוב בתי החולים מאפשרים גם ביטול/שינוי תור בSMS ← קישור.',
+   canDo:['קביעת תור מרפאה חוץ','בדיקת רשימת המתנה','הורדת מכתב שחרור'],
+   cantDo:['חירום — 101 בלבד','שחרור מוקדם דורש אישור רפואי פנים-אל-פנים'],
+   links:[{t:'שיבא — תל השומר',u:'https://www.sheba.co.il',p:true},{t:'איכילוב — תל אביב',u:'https://www.tasmc.org.il'},{t:'הדסה — ירושלים',u:'https://www.hadassah.org.il'},{t:'רמב"ם — חיפה',u:'https://www.rambam.org.il'},{t:'סורוקה — באר שבע',u:'https://www.soroka.health.gov.il'}],
+   ai:'אתה סייע בנושא שירותי בתי חולים בישראל. קביעת תורים למרפאות חוץ, בדיקת רשימות המתנה לניתוחים, הורדת מכתב שחרור. בתי חולים עיקריים: שיבא, איכילוב, הדסה, רמב"ם, סורוקה. חירום: 101. ענה בעברית פשוטה.'
+  },
+
+  // ── הזדהות ──
+  {id:'id-login', cat:'id', icon:'🔑',
+   title:'הרשמה לשירותי gov.il',
+   desc:'פתיחת חשבון לכל השירותים הממשלתיים',
+   kw:['הזדהות','כניסה','סיסמה','חשבון','gov','הרשמה','login'],
+   steps:['גשו ל-<strong>login.gov.il</strong> ← לחצו "הרשמה".',
+          'הכניסו ת"ז, כתובת מייל, מספר נייד.',
+          'הכניסו קוד SMS שנשלח לטלפון (תוך 5 דקות).',
+          'קבעו סיסמה: לפחות 8 תווים, אות גדולה, מספר, תו מיוחד.'],
+   tip:'💡 אחרי הרשמה חד-פעמית — כניסה עתידית פשוטה: ת"ז + סיסמה.',
+   canDo:['כניסה לכל השירותים הממשלתיים','הורדת מסמכים רשמיים','הגשת טפסים'],
+   cantDo:['לא ניתן להירשם ללא מספר נייד ישראלי'],
+   links:[{t:'כניסה / הרשמה',u:'https://login.gov.il',p:true},{t:'שאלות נפוצות על הזדהות',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
+   ai:'אתה סייע בנושא הזדהות ממשלתית ישראל (login.gov.il). הרשמה: ת"ז + מייל + נייד → קוד SMS → סיסמה. כניסה: ת"ז + סיסמה. ענה בעברית פשוטה.'
+  },
+  {id:'id-mygov', cat:'id', icon:'🪪',
+   title:'האזור האישי — my.gov.il',
+   desc:'ספח ת"ז, רישיון רכב, שינוי כתובת',
+   kw:['אזור אישי','my.gov','מסמכים','ת"ז','ספח','רישיון'],
+   steps:['היכנסו ל-<strong>my.gov.il</strong> עם פרטי ההזדהות.',
+          'ספח ת"ז: חפשו "הורדת ספח תעודת זהות" ← הורידו PDF.',
+          'רישיון רכב: חפשו "רישיון רכב" ← הורידו PDF חתום.',
+          'שינוי כתובת: חפשו "שינוי כתובת מגורים" ← מלאו.'],
+   tip:'💡 המסמכים הדיגיטליים מ-my.gov.il תקפים בדיוק כמו המקוריים!',
+   canDo:['הורדת ספח ת"ז','הורדת רישיון רכב','שינוי כתובת','העברת בעלות רכב'],
+   cantDo:['חידוש דרכון — ביקור בסניף משרד הפנים חובה'],
+   links:[{t:'my.gov.il — האזור האישי',u:'https://my.gov.il',p:true},{t:'אפליקציית MyGov',u:'https://apps.apple.com/il/app/mygov/id6474604289'}],
+   ai:'אתה סייע בנושא my.gov.il — האזור האישי הממשלתי. ניתן: הורדת ספח ת"ז, רישיון רכב, שינוי כתובת, העברת בעלות רכב. ענה בעברית פשוטה.'
+  },
+
+  // ── מיסים ──
+  {id:'tax-main', cat:'tax', icon:'📄',
+   title:'מס הכנסה — אישורים והחזרים',
+   desc:'אישורי הכנסה, החזר מס, דוח שנתי',
+   kw:['מס','הכנסה','החזר','אישור','דוח','שנתי','מס הכנסה'],
+   steps:['היכנסו ל-<strong>secapp.taxes.gov.il</strong>.',
+          'אישור הכנסות: "אישור הכנסות שנתי" ← בחרו שנה ← הורידו PDF.',
+          'החזר מס: "בקשת החזר מס" ← מלאו (עד 6 שנים אחורה!).',
+          'דוח שנתי: עצמאים עד 30.4. שכירים — לרוב פטורים.'],
+   tip:'💡 רוב השכירים זכאים להחזר מס — שווה לבדוק אחורה 6 שנים!',
+   canDo:['אישורי הכנסה','בקשת החזר מס','הגשת דוח שנתי','בדיקת חוב/זכות'],
+   cantDo:['קנסות — יש לפנות לשומה הקרובה','ייעוץ מס — עורך דין/רואה חשבון'],
+   links:[{t:'כניסה למס הכנסה',u:'https://secapp.taxes.gov.il',p:true},{t:'רשות המסים',u:'https://www.taxes.gov.il'}],
+   ai:'אתה סייע בנושא מס הכנסה ישראל. secapp.taxes.gov.il. אישורי הכנסה (PDF), בקשת החזר (עד 6 שנים), דוח שנתי (עצמאים עד 30.4). ענה בעברית פשוטה.'
+  },
+
+  // ── תחבורה ──
+  {id:'transport-license', cat:'transport', icon:'🚗',
+   title:'רישיון רכב — הורדה ועדכון',
+   desc:'הורדה דיגיטלית, טסט, העברת בעלות',
+   kw:['רישיון','רכב','טסט','בדיקה','בעלות','העברה'],
+   steps:['הורדת רישיון: my.gov.il ← "רישיון רכב" ← הורידו PDF.',
+          'בדיקת פרטי רכב: gov.il ← "בדיקת רכב" (ביטוח, תוקף, בעלות).',
+          'תור לטסט: gov.il ← "קביעת תור לטסט" ← בחרו תחנה.',
+          'העברת בעלות: my.gov.il ← "העברת בעלות" — שני הצדדים מזדהים.'],
+   tip:'💡 הרישיון הדיגיטלי תקף בדיוק כמו הפיזי — שוטרים מקבלים אותו!',
+   canDo:['הורדת רישיון דיגיטלי','בדיקת פרטי רכב','תור לטסט','העברת בעלות'],
+   cantDo:['רישיון נהיגה (דרייברים) — ביקור בסניף','רישיון אבוד — ביקור ברשות הרישוי'],
+   links:[{t:'my.gov.il',u:'https://my.gov.il',p:true},{t:'קביעת תור לטסט',u:'https://www.gov.il/he/service/car-test-appointment'}],
+   ai:'אתה סייע בנושא רישיון רכב בישראל. my.gov.il: הורדת רישיון PDF, בדיקת פרטי רכב, תור לטסט, העברת בעלות. ענה בעברית פשוטה.'
+  },
+  {id:'transport-passport', cat:'transport', icon:'✈️',
+   title:'דרכון ותעודת זהות',
+   desc:'הנפקה, חידוש, בדיקת תוקף',
+   kw:['דרכון','תעודת זהות','ת"ז','חידוש','הנפקה','תוקף'],
+   steps:['בדיקת תוקף דרכון: gov.il ← חיפוש "בדיקת תוקף דרכון".',
+          'חידוש דרכון: gov.il ← "קביעת תור משרד הפנים" ← הגיעו עם ת"ז + תמונה.',
+          'ספח ת"ז: my.gov.il ← "הורדת ספח ת"ז" ← PDF חתום.',
+          'ת"ז אבודה: my.gov.il ← "הפעלת ת"ז מאבדת".'],
+   tip:'💡 חידוש דרכון לוקח 4–6 שבועות. הזמינו תור מוקדם מראש!',
+   canDo:['בדיקת תוקף דרכון','קביעת תור חידוש','הורדת ספח ת"ז','הפעלת ת"ז אבודה'],
+   cantDo:['חידוש דרכון — ביקור בסניף חובה','הנפקת ת"ז חדשה — ביקור חובה'],
+   links:[{t:'קביעת תור — משרד הפנים',u:'https://www.gov.il/he/service/piba-appointment',p:true},{t:'my.gov.il',u:'https://my.gov.il'}],
+   ai:'אתה סייע בנושא דרכון ות"ז בישראל. בדיקת תוקף דרכון: gov.il. חידוש: ביקור בסניף חובה, קבעו תור ב-gov.il. ספח ת"ז + הפעלת ת"ז אבודה: my.gov.il. ענה בעברית פשוטה.'
+  },
+
+  // ── מגורים ──
+  {id:'housing-address', cat:'housing', icon:'🏠',
+   title:'עדכון כתובת מגורים',
+   desc:'שינוי מען במשרד הפנים, ביטוח לאומי ובנק',
+   kw:['כתובת','מען','שינוי','עיר','דירה','מגורים','עברתי'],
+   steps:['משרד הפנים: <strong>my.gov.il</strong> ← "שינוי כתובת מגורים".',
+          'ביטוח לאומי: btl.gov.il ← "אזור אישי" ← "עדכון פרטים".',
+          'בנק: ביקור בסניף עם ת"ז ואסמכתא (חשמל / ארנונה).',
+          'עירייה: צרו קשר עם הרשות המקומית לעדכון ברשימות תושבים.'],
+   tip:'💡 עדכון במשרד הפנים גורר עדכון אוטומטי בחלק מהרשויות — אבל לא בכולן!',
+   canDo:['שינוי כתובת במשרד הפנים','עדכון בביטוח לאומי'],
+   cantDo:['בנק — ביקור בסניף ברוב הבנקים','קופת חולים — לרוב ידני'],
+   links:[{t:'my.gov.il — שינוי כתובת',u:'https://my.gov.il',p:true},{t:'ביטוח לאומי',u:'https://www.btl.gov.il'}],
+   ai:'אתה סייע בנושא עדכון כתובת מגורים בישראל. my.gov.il לשינוי כתובת. btl.gov.il לביטוח לאומי. בנק — ביקור בסניף עם ת"ז + אסמכתא. ענה בעברית פשוטה.'
+  },
+  {id:'housing-arnona', cat:'housing', icon:'🏙️',
+   title:'ארנונה ועירייה',
+   desc:'תשלום, פטורים והנחות לוותיקים',
+   kw:['ארנונה','עירייה','תשלום','חוב','הנחה','פטור','רשות מקומית'],
+   steps:['תשלום: חפשו "עיריית [שם העיר] תשלום ארנונה" — רוב הרשויות מאפשרות אונליין.',
+          'בדיקת חוב/יתרה: אתר הרשות המקומית שלכם.',
+          'הנחה לוותיקים: פנו לאגף ארנונה בעירייה עם אישורי הכנסה.',
+          'הנחה של עד 90% אפשרית לבעלי הכנסה נמוכה!'],
+   tip:'💡 אזרחים ותיקים עם קצבת זקנה עשויים להיות זכאים להנחה גדולה — שווה לברר!',
+   canDo:['תשלום ארנונה אונליין (ברוב הרשויות)','בדיקת יתרת חוב','הפקת אישורי תשלום'],
+   cantDo:['הגשת בקשת הנחה — לא תמיד אונליין','ערעור — ועדת ערר'],
+   links:[{t:'הנחות ארנונה — כל זכות',u:'https://www.kolzchut.org.il/he/הנחה_בארנונה',p:true}],
+   ai:'אתה סייע בנושא ארנונה ועירייה בישראל. תשלום אונליין בחלק מהרשויות. הנחה לוותיקים עם הכנסה נמוכה — עד 90%. פנייה לאגף ארנונה. ענה בעברית פשוטה.'
+  },
+];
+
+// ════════════════════════════════
+//  עצי קטגוריות
+// ════════════════════════════════
+var CAT_MAP = {
+  btl:       { label:'🏦 ביטוח לאומי', ids:['btl-old','btl-nursing','btl-income','btl-disability'] },
+  health:    { label:'🏥 בריאות',       ids:['health-clalit','health-maccabi','health-leumit','health-meuhedet','health-hospital'] },
+  id:        { label:'🔑 הזדהות',       ids:['id-login','id-mygov'] },
+  tax:       { label:'📄 מיסים',        ids:['tax-main'] },
+  transport: { label:'🚗 תחבורה',      ids:['transport-license','transport-passport'] },
+  housing:   { label:'🏠 מגורים',      ids:['housing-address','housing-arnona'] },
+};
+
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+var state = { cat:null, catLabel:'', item:null, screen:1 };
+var pendingWAText = '';
+
+// ════════════════════════════════
+//  SCREENS
+// ════════════════════════════════
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active');
+  state.screen = n;
+  updateBreadcrumb();
+  window.scrollTo(0,0);
+}
+function goBack(n) { showScreen(n); }
+
+function updateBreadcrumb() {
+  var bc = document.getElementById('breadcrumb');
+  var parts = [];
+  if (state.catLabel) parts.push({l: state.catLabel, sc:1});
+  if (state.item && state.screen===3) parts.push({l: state.item.title, active:true});
+  var html = '';
+  parts.forEach(function(p,i){
+    if(i) html += '<span class="crumb-sep">›</span>';
+    html += '<span class="crumb'+(p.active?' active':'')+(p.sc?' style="cursor:pointer" onclick="goBack('+p.sc+')"':'')+'">'+p.l+'</span>';
+  });
+  bc.innerHTML = html;
+}
+
+// ════════════════════════════════
+//  חיפוש חופשי
+// ════════════════════════════════
+function onFreeInput() {
+  var q = document.getElementById('free-input').value.trim();
+  if (!q) { document.getElementById('free-results').innerHTML=''; return; }
+  var matches = freeSearch(q);
+  renderFreeResults(matches, q);
+}
+
+function doFreeSearch() {
+  var q = document.getElementById('free-input').value.trim();
+  if (!q) return;
+  var matches = freeSearch(q);
+  if (matches.length) { renderFreeResults(matches, q); }
+  else { callAIFree(q); }
+}
+
+function freeSearch(q) {
+  var words = q.toLowerCase().split(/\s+/);
+  var scored = [];
+  DB.forEach(function(item){
+    var text = (item.title+' '+item.desc+' '+item.kw.join(' ')).toLowerCase();
+    var sc=0; words.forEach(function(w){ if(text.indexOf(w)!==-1) sc++; });
+    if(sc>0) scored.push({item:item,sc:sc});
+  });
+  scored.sort(function(a,b){return b.sc-a.sc;});
+  return scored.slice(0,5).map(function(s){return s.item;});
+}
+
+function renderFreeResults(matches, q) {
+  var area = document.getElementById('free-results');
+  if (!matches.length) { area.innerHTML=''; return; }
+  var html = '<div class="results-label">'+matches.length+' תוצאות</div>';
+  matches.forEach(function(item){
+    var t = q ? highlight(item.title,q) : item.title;
+    html += '<div class="result-card" onclick="openItem(\''+item.id+'\')">';
+    html += '<div class="r-title">'+item.icon+' '+t+'</div>';
+    html += '<div class="r-meta">'+item.desc+'</div></div>';
+  });
+  area.innerHTML = html;
+}
+
+function highlight(text,q){
+  var words=q.toLowerCase().split(/\s+/).filter(Boolean);
+  var result=text;
+  words.forEach(function(w){
+    var re=new RegExp('('+w+')','gi');
+    result=result.replace(re,'<mark>$1</mark>');
+  });
+  return result;
+}
+
+// ════════════════════════════════
+//  בחירת קטגוריה → תת-קטגוריה
+// ════════════════════════════════
+function selectCat(catId) {
+  var cat = CAT_MAP[catId];
+  if (!cat) return;
+  state.cat = catId;
+  state.catLabel = cat.label;
+  document.getElementById('s2-title').textContent = cat.label;
+  var list = document.getElementById('sub-list');
+  list.innerHTML = '';
+  cat.ids.forEach(function(id){
+    var item = DB.find(function(x){return x.id===id;});
+    if (!item) return;
+    var btn = document.createElement('button');
+    btn.className = 'sub-btn';
+    btn.innerHTML = '<span class="sub-icon">'+item.icon+'</span><div><div class="sub-label">'+item.title+'</div><div class="sub-desc">'+item.desc+'</div></div>';
+    btn.onclick = function(){ openItem(id); };
+    list.appendChild(btn);
+  });
+  showScreen(2);
+}
+
+// ════════════════════════════════
+//  פתיחת שירות → מסך 3
+// ════════════════════════════════
+function openItem(id) {
+  var item = DB.find(function(x){return x.id===id;});
+  if (!item) return;
+  state.item = item;
+
+  // כפתור חזרה
+  document.getElementById('s3-back-btn').onclick = state.catLabel
+    ? function(){ goBack(2); }
+    : function(){ goBack(1); };
+
+  // בנה תשובה סטטית
+  var html = '';
+
+  // כותרת
+  html += '<div style="font-size:20px;font-weight:900;margin-bottom:4px">'+item.icon+' '+item.title+'</div>';
+  html += '<div style="font-size:13px;color:var(--muted);margin-bottom:18px">'+item.desc+'</div>';
+
+  // שלבים
+  html += '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🪜 שלבים לביצוע</div>';
+  html += '<div style="margin-bottom:14px">';
+  item.steps.forEach(function(s,i){
+    html += '<div class="ai-step"><div class="ai-step-num">'+(i+1)+'</div><div class="ai-step-text">'+s+'</div></div>';
+  });
+  html += '</div>';
+
+  // טיפ
+  html += '<div class="ai-tip" style="margin-bottom:14px">'+item.tip+'</div>';
+
+  // ✅ / 🚫
+  html += '<div class="can-box yes"><div class="can-box-title">✅ ניתן לבצע אונליין</div><ul>';
+  item.canDo.forEach(function(x){ html+='<li>'+x+'</li>'; });
+  html += '</ul></div>';
+  html += '<div class="can-box no"><div class="can-box-title">🚫 דורש ביקור / טלפון</div><ul>';
+  item.cantDo.forEach(function(x){ html+='<li>'+x+'</li>'; });
+  html += '</ul></div>';
+
+  // קישורים
+  html += '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 8px">🔗 קישורים ישירים</div>';
+  html += '<div class="link-btn-row">';
+  item.links.forEach(function(l){
+    html += '<a href="'+l.u+'" target="_blank" class="gov-link'+(l.p?' primary':'')+'">'+l.t+' ↗</a>';
+  });
+  html += '</div>';
+
+  // כפתור העתקה + שיתוף WA
+  var plainText = item.icon+' '+item.title+'\n\n';
+  item.steps.forEach(function(s,i){ plainText+=(i+1)+'. '+s.replace(/<[^>]+>/g,'')+'\n'; });
+  plainText+='\n'+item.tip.replace(/<[^>]+>/g,'');
+  pendingWAText = encodeURIComponent(plainText);
+  var safe = plainText.replace(/\\/g,'\\\\').replace(/`/g,'\\`');
+  html += '<button style="width:100%;margin-top:14px;padding:12px;border-radius:14px;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;" onclick="navigator.clipboard.writeText(`'+safe+'`).then(function(){this.innerText=\'✓ הועתק!\';var _=this;setTimeout(function(){_.innerText=\'📋 העתק מדריך\'},2000)}.bind(this))">📋 העתק מדריך</button>';
+  html += '<button style="width:100%;margin-top:8px;padding:12px;border-radius:14px;background:#1a3a28;border:1.5px solid var(--wa);color:var(--wa);font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;" onclick="openPhoneModal()">📲 שלח בוואטסאפ</button>';
+
+  html += '<hr style="border:none;border-top:1px solid var(--border);margin:18px 0">';
+
+  document.getElementById('static-answer').innerHTML = html;
+  document.getElementById('ai-area').classList.add('hidden');
+  document.getElementById('followup-input').value = '';
+  showScreen(3);
+}
+
+// ════════════════════════════════
+//  AI — שאלה חופשית על שירות / כללית
+// ════════════════════════════════
+function doFollowup() {
+  var q = document.getElementById('followup-input').value.trim();
+  if (!q) return;
+  callAI(q, state.item ? state.item.ai : 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית.');
+  document.getElementById('followup-input').value = '';
+}
+
+function callAIFree(q) {
+  var aiArea = document.getElementById('ai-area');
+  aiArea.classList.remove('hidden');
+  document.getElementById('ai-typing').classList.remove('hidden');
+  document.getElementById('ai-content').innerHTML='';
+  document.getElementById('free-results').innerHTML='';
+  state.item = null;
+  state.catLabel = '';
+  showScreen(3);
+  document.getElementById('s3-back-btn').onclick = function(){ goBack(1); };
+  document.getElementById('static-answer').innerHTML = '';
+  callAI(q, 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. כלול שלבים ברורים וקישורים רלוונטיים.');
+}
+
+function callAI(question, systemBase) {
+  var aiArea = document.getElementById('ai-area');
+  aiArea.classList.remove('hidden');
+  document.getElementById('ai-typing').classList.remove('hidden');
+  document.getElementById('ai-content').innerHTML='';
+
+  var system = systemBase + '\n\nענה בעברית. הסבר בצורה פשוטה לאזרח ותיק. כתוב:\n**כותרת קצרה**\n1. שלב ראשון\n2. שלב שני\n3. שלב שלישי\n💡 טיפ קצר\nאם לא יודע — הפנה לטלפון הרלוונטי.';
+
+  fetch(PROXY+'?question='+encodeURIComponent(question)+'&system='+encodeURIComponent(system))
+  .then(function(r){return r.json();})
+  .then(function(data){
+    document.getElementById('ai-typing').classList.add('hidden');
+    var text='';
+    if(data.content&&data.content[0]&&data.content[0].text) text=data.content[0].text;
+    else if(data.error) text='⚠️ שגיאה: '+(data.error.message||'נסו שוב');
+    renderAI(text);
+  })
+  .catch(function(){
+    document.getElementById('ai-typing').classList.add('hidden');
+    document.getElementById('ai-content').innerHTML='<div style="color:#fca5a5;font-size:14px">⚠️ לא ניתן להתחבר. בדקו אינטרנט ונסו שוב.</div>';
+  });
+}
+
+function renderAI(text) {
+  var lines=text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var title='', steps=[], tip='', rest=[];
+  lines.forEach(function(line){
+    if(line.startsWith('**')&&line.endsWith('**')) title=line.replace(/\*\*/g,'');
+    else if(/^[1-5]\.\s/.test(line)) steps.push(line.replace(/^[1-5]\.\s/,''));
+    else if(line.startsWith('💡')) tip=line;
+    else if(!title&&steps.length===0) title=line.replace(/\*\*/g,'');
+    else rest.push(line);
+  });
+  var html='';
+  if(title) html+='<div style="font-size:16px;font-weight:700;margin-bottom:14px;color:var(--text)">'+escH(title)+'</div>';
+  if(steps.length){
+    html+='<div>';
+    steps.forEach(function(s,i){ html+='<div class="ai-step"><div class="ai-step-num">'+(i+1)+'</div><div class="ai-step-text">'+escH(s)+'</div></div>'; });
+    html+='</div>';
+  }
+  if(!title&&!steps.length) html+='<div class="ai-content">'+escH(text)+'</div>';
+  if(tip) html+='<div class="ai-tip">'+escH(tip)+'</div>';
+  if(rest.length) html+='<div style="font-size:13px;color:var(--muted);margin-top:10px">'+rest.map(escH).join('<br>')+'</div>';
+  document.getElementById('ai-content').innerHTML=html;
+}
+
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ════════════════════════════════
+//  WA
+// ════════════════════════════════
+function openPhoneModal(){
+  document.getElementById('wa-modal').classList.remove('hidden');
+  document.getElementById('wa-phone-input').value='';
+  document.getElementById('wa-phone-input').focus();
+  document.getElementById('wa-modal-error').textContent='';
+}
+function closePhoneModal(){ document.getElementById('wa-modal').classList.add('hidden'); }
+function sendWANow(){
+  var raw=document.getElementById('wa-phone-input').value.trim().replace(/\D/g,'');
+  var err=document.getElementById('wa-modal-error');
+  if(raw.length<9){err.textContent='נא להכניס מספר תקין';return;}
+  var intl=raw.startsWith('0')?'972'+raw.slice(1):raw;
+  window.open('https://wa.me/'+intl+'?text='+pendingWAText,'_blank');
+  closePhoneModal();
+}
+
+// ════════════════════════════════
+//  RESET
+// ════════════════════════════════
+function resetAll(){
+  state={cat:null,catLabel:'',item:null,screen:1};
+  document.getElementById('free-input').value='';
+  document.getElementById('free-results').innerHTML='';
+  document.getElementById('static-answer').innerHTML='';
+  document.getElementById('ai-area').classList.add('hidden');
+  document.getElementById('followup-input').value='';
+  showScreen(1);
+}
+</script>
+</body>
+</html>
