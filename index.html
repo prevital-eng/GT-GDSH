@@ -11,7 +11,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GimlaTech — שירותים ממשלתיים</title>
+<title>GimlaTech — GT-GDSH</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -330,7 +330,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
 <!-- ══ SIDEBAR (desktop only) ══ -->
 <div class="sidebar">
   <div class="sidebar-logo">Gimla<span>Tech</span></div>
-  <div class="sidebar-tag">🏛️ שירותים ממשלתיים דיגיטליים</div>
+  <div class="sidebar-tag">🛠️ שירותים ממשלתיים דיגיטליים</div>
   <div class="sidebar-desc">מדריך ממוקד לניווט בשירותים הממשלתיים — צעד אחר צעד, בשפה פשוטה, עם קישורים ישירים.</div>
   <div class="sidebar-steps">
     <div class="sidebar-step"><div class="sidebar-step-num">1</div><div class="sidebar-step-text">כתבו שאלה חופשית — או בחרו נושא</div></div>
@@ -350,7 +350,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
   <!-- HEADER -->
   <div class="header">
     <div class="logo-row">
-      <span class="logo-icon">🏛️</span>
+      <span class="logo-icon">🛠️</span>
       <div>
         <div class="logo-text">Gimla<span>Tech</span></div>
         <div class="logo-sub">שירותים ממשלתיים דיגיטליים</div>
@@ -482,7 +482,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
   <!-- ABOUT MODAL -->
   <div class="modal-overlay hidden" id="about-modal" onclick="if(event.target===this)this.classList.add('hidden')">
     <div class="modal-box" style="text-align:right;max-height:85vh;overflow-y:auto">
-      <div class="modal-title">🏛️ GimlaTech — שירותים ממשלתיים</div>
+      <div class="modal-title">🛠️ GimlaTech — GT-GDSH</div>
       <div style="background:#0f172a;border-radius:12px;padding:14px;margin-bottom:14px">
         <div style="font-size:13px;color:#94a3b8;line-height:2">
           <strong style="color:#38bdf8">יוצרת:</strong> רויטל פלד<br>
@@ -584,10 +584,10 @@ var DB = [
           'תיקבע ועדה רפואית לקביעת אחוז נכות.',
           'לאחר ההחלטה ניתן לערער.',
           'זכאים לשירותים נוספים: תג נכה, הנחות, שיקום.'],
-   tip:'💡 ניתן לפנות לייעוץ חינם ב"ענבר" — anbar.org.il',
+   tip:'💡 לייעוץ חינם בנושא זכויות נכים — פנו לביטוח לאומי *6050',
    canDo:['הגשת תביעה','בדיקת סטטוס','שליחת מסמכים'],
    cantDo:['ועדה רפואית — פנים-אל-פנים בלבד','ערעור דורש הליך ידני'],
-   links:[{t:'נכות כללית — מידע',u:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx',p:true},{t:'ענבר — ייעוץ',u:'https://www.anbar.org.il'}],
+   links:[{t:'נכות כללית — מידע',u:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx',p:true},{t:'טפסים מקוונים — ביטוח לאומי',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'}],
    ai:'אתה סייע בנושא קצבת נכות כללית מביטוח לאומי ישראל. טופס 5130. ועדה רפואית. ניתן לערער. שירותים נוספים: תג נכה, הנחות, שיקום. ענה בעברית פשוטה.'
   },
 
@@ -603,7 +603,7 @@ var DB = [
    tip:'💡 אין תורים? בדקו ביטולים בשעות הבוקר — לרוב מתפנים.',
    canDo:['קביעת תורים','צפייה בבדיקות','הזמנת מרשמים','שיחת וידאו עם רופא'],
    cantDo:['מצב חירום — התקשרו 101','החלפת קופה — רק ב-1.1 בנייר'],
-   links:[{t:'כללית — כניסה',u:'https://www.clalit.co.il',p:true},{t:'אפליקציית כללית',u:'https://www.clalit.co.il/he/info/Pages/clalit_app.aspx'}],
+   links:[{t:'כללית — כניסה',u:'https://www.clalit.co.il',p:true}],
    ai:'אתה סייע בנושא שירותי קופת חולים כללית (clalit.co.il). קביעת תורים, תוצאות בדיקות, הזמנת מרשמים, שיחת וידאו. ענה בעברית פשוטה.'
   },
   {id:'health-maccabi', cat:'health', icon:'💚',
@@ -659,7 +659,7 @@ var DB = [
    tip:'💡 רוב בתי החולים מאפשרים גם ביטול/שינוי תור בSMS ← קישור.',
    canDo:['קביעת תור מרפאה חוץ','בדיקת רשימת המתנה','הורדת מכתב שחרור'],
    cantDo:['חירום — 101 בלבד','שחרור מוקדם דורש אישור רפואי פנים-אל-פנים'],
-   links:[{t:'שיבא — תל השומר',u:'https://www.sheba.co.il',p:true},{t:'איכילוב — תל אביב',u:'https://www.tasmc.org.il'},{t:'הדסה — ירושלים',u:'https://www.hadassah.org.il'},{t:'רמב"ם — חיפה',u:'https://www.rambam.org.il'},{t:'סורוקה — באר שבע',u:'https://www.soroka.health.gov.il'}],
+   links:[{t:'רשימת בתי חולים — gov.il',u:'https://www.gov.il/he/departments/topics/hospitals',p:true},{t:'סורוקה — באר שבע',u:'https://www.soroka.health.gov.il'},{t:'רמב"ם — חיפה',u:'https://www.rambam.health.gov.il'},{t:'בתי חולים ממשלתיים',u:'https://www.gov.il/he/departments/ministry_of_health'}],
    ai:'אתה סייע בנושא שירותי בתי חולים בישראל. קביעת תורים למרפאות חוץ, בדיקת רשימות המתנה לניתוחים, הורדת מכתב שחרור. בתי חולים עיקריים: שיבא, איכילוב, הדסה, רמב"ם, סורוקה. חירום: 101. ענה בעברית פשוטה.'
   },
 
@@ -675,7 +675,7 @@ var DB = [
    tip:'💡 אחרי הרשמה חד-פעמית — כניסה עתידית פשוטה: ת"ז + סיסמה.',
    canDo:['כניסה לכל השירותים הממשלתיים','הורדת מסמכים רשמיים','הגשת טפסים'],
    cantDo:['לא ניתן להירשם ללא מספר נייד ישראלי'],
-   links:[{t:'כניסה / הרשמה',u:'https://login.gov.il',p:true},{t:'שאלות נפוצות על הזדהות',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
+   links:[{t:'כניסה / הרשמה — login.gov.il',u:'https://login.gov.il',p:true},{t:'שאלות נפוצות על הזדהות',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
    ai:'אתה סייע בנושא הזדהות ממשלתית ישראל (login.gov.il). הרשמה: ת"ז + מייל + נייד → קוד SMS → סיסמה. כניסה: ת"ז + סיסמה. ענה בעברית פשוטה.'
   },
   {id:'id-mygov', cat:'id', icon:'🪪',
@@ -689,7 +689,7 @@ var DB = [
    tip:'💡 המסמכים הדיגיטליים מ-my.gov.il תקפים בדיוק כמו המקוריים!',
    canDo:['הורדת ספח ת"ז','הורדת רישיון רכב','שינוי כתובת','העברת בעלות רכב'],
    cantDo:['חידוש דרכון — ביקור בסניף משרד הפנים חובה'],
-   links:[{t:'my.gov.il — האזור האישי',u:'https://my.gov.il',p:true},{t:'אפליקציית MyGov',u:'https://apps.apple.com/il/app/mygov/id6474604289'}],
+   links:[{t:'my.gov.il — האזור האישי',u:'https://my.gov.il',p:true},{t:'שאלות נפוצות — gov.il',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
    ai:'אתה סייע בנושא my.gov.il — האזור האישי הממשלתי. ניתן: הורדת ספח ת"ז, רישיון רכב, שינוי כתובת, העברת בעלות רכב. ענה בעברית פשוטה.'
   },
 
@@ -765,7 +765,7 @@ var DB = [
    tip:'💡 אזרחים ותיקים עם קצבת זקנה עשויים להיות זכאים להנחה גדולה — שווה לברר!',
    canDo:['תשלום ארנונה אונליין (ברוב הרשויות)','בדיקת יתרת חוב','הפקת אישורי תשלום'],
    cantDo:['הגשת בקשת הנחה — לא תמיד אונליין','ערעור — ועדת ערר'],
-   links:[{t:'הנחות ארנונה — כל זכות',u:'https://www.kolzchut.org.il/he/הנחה_בארנונה',p:true}],
+   links:[{t:'הנחות ארנונה — משרד הפנים',u:'https://www.gov.il/he/service/arnona-discount',p:true},{t:'מידע על ארנונה — gov.il',u:'https://www.gov.il/he/departments/topics/arnona'}],
    ai:'אתה סייע בנושא ארנונה ועירייה בישראל. תשלום אונליין בחלק מהרשויות. הנחה לוותיקים עם הכנסה נמוכה — עד 90%. פנייה לאגף ארנונה. ענה בעברית פשוטה.'
   },
 ];
