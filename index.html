@@ -110,14 +110,14 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
   border-radius: 16px;
   display: flex; align-items: center; gap: 10px;
   padding: 4px 14px 4px 8px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   transition: border-color 0.2s;
 }
 .free-search-box:focus-within { border-color: var(--accent); }
 .free-search-box input {
   flex: 1; background: none; border: none; outline: none;
-  font-size: 15px; font-family: 'Heebo', sans-serif;
-  color: var(--text); padding: 12px 0;
+  font-size: 14px; font-family: 'Heebo', sans-serif;
+  color: var(--text); padding: 10px 0;
   direction: rtl; min-width: 0;
 }
 .free-search-box input::placeholder { color: var(--muted); }
@@ -370,24 +370,29 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
       <div class="screen-sub">כתבו שאלה חופשית — או בחרו נושא</div>
 
       <!-- חיפוש חופשי -->
-      <div style="margin-bottom:12px">
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="free-input"
-            style="flex:1;background:#1e293b;border:2px solid #334155;border-radius:12px;
-                   color:#f1f5f9;padding:13px 16px;font-size:15px;font-family:Heebo,sans-serif;
-                   outline:none;direction:rtl;"
-            placeholder="לדוגמה: איך קובעים תור לרופא?"
-            onkeydown="if(event.key==='Enter'){searchNow();}">
-          <button type="button"
-            style="background:#38bdf8;border:none;border-radius:12px;
-                   color:#0f172a;padding:13px 18px;font-size:15px;font-weight:700;
-                   font-family:Heebo,sans-serif;cursor:pointer;white-space:nowrap;"
-            onclick="searchNow()">חפש 🔍</button>
-        </div>
+      <div class="free-search-box">
+        <button type="button" class="search-go" id="search-go-btn" onclick="searchNow()">🔍</button>
+        <input type="text" id="free-input"
+          placeholder="תארו את השאלה... (לדוגמה: איך קובעים תור לרופא)"
+          onkeydown="if(event.key==='Enter')searchNow()">
       </div>
 
-      <!-- תוצאות חיפוש -->
-      <div id="free-results" class="free-results"></div>
+      <!-- תוצאות מאגר -->
+      <div id="free-results"></div>
+
+      <!-- AI תשובה בתוך מסך 1 -->
+      <div id="s1-ai-area" class="hidden">
+        <div class="ai-box">
+          <div class="ai-header">
+            <span class="ai-badge">✨ בינה מלאכותית</span>
+          </div>
+          <div id="s1-ai-typing" class="ai-typing">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>מחשב תשובה...</span>
+          </div>
+          <div id="s1-ai-content"></div>
+        </div>
+      </div>
 
       <!-- OR -->
       <div class="divider-label" id="or-divider">או בחרו נושא</div>
@@ -686,23 +691,55 @@ var DB = [
    canDo:['כניסה לכל השירותים הממשלתיים','הורדת מסמכים רשמיים','הגשת טפסים'],
    cantDo:['לא ניתן להירשם ללא מספר נייד ישראלי'],
    links:[{t:'כניסה / הרשמה — login.gov.il',u:'https://login.gov.il',p:true},{t:'שאלות נפוצות על הזדהות',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
-   ai:'אתה סייע בנושא הזדהות ממשלתית ישראל (login.gov.il). הרשמה: ת"ז + מייל + נייד → קוד SMS → סיסמה. כניסה: ת"ז + סיסמה. ענה בעברית פשוטה.'
+   ai:'אתה סייע בנושא הזדהות ממשלתית ישראל. login.gov.il לכניסה. הרשמה: ת"ז + מייל + נייד + סיסמה + קוד SMS. לאחר הרשמה: ת"ז + סיסמה. my.gov.il לאזור אישי. מנוע הזכויות הלאומי בgov.il לבדיקת זכויות אישיות. ענה בעברית פשוטה.'
   },
   {id:'id-mygov', cat:'id', icon:'🪪',
    title:'האזור האישי — my.gov.il',
    desc:'ספח ת"ז, רישיון רכב, שינוי כתובת',
    kw:['אזור אישי','my.gov','מסמכים','ת"ז','ספח','רישיון'],
-   steps:['היכנסו ל-<strong>my.gov.il</strong> עם פרטי ההזדהות.',
-          'ספח ת"ז: חפשו "הורדת ספח תעודת זהות" ← הורידו PDF.',
-          'רישיון רכב: חפשו "רישיון רכב" ← הורידו PDF חתום.',
-          'שינוי כתובת: חפשו "שינוי כתובת מגורים" ← מלאו.'],
+   steps:['היכנסו ל-my.gov.il עם פרטי ההזדהות.',
+          'ספח ת"ז: הורדת ספח תעודת זהות ← PDF חתום.',
+          'רישיון רכב: הורדת רישיון רכב ← PDF דיגיטלי.',
+          'שינוי כתובת, העברת בעלות רכב, שיוך תג נכה, חידוש רישיון נהיגה.'],
    tip:'💡 המסמכים הדיגיטליים מ-my.gov.il תקפים בדיוק כמו המקוריים!',
-   canDo:['הורדת ספח ת"ז','הורדת רישיון רכב','שינוי כתובת','העברת בעלות רכב'],
-   cantDo:['חידוש דרכון — ביקור בסניף משרד הפנים חובה'],
-   links:[{t:'my.gov.il — האזור האישי',u:'https://my.gov.il',p:true},{t:'שאלות נפוצות — gov.il',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
+   canDo:['הורדת ספח ת"ז','הורדת רישיון רכב','שינוי כתובת','העברת בעלות רכב','חידוש רישיון נהיגה','שיוך תג נכה לרכב','מעקב אחר בקשת דרכון','סטטוס צו ירושה'],
+   cantDo:['הנפקת דרכון/ת"ז חדשים — ביקור בסניף חובה'],
+   links:[{t:'my.gov.il — האזור האישי',u:'https://my.gov.il',p:true}],
    ai:'אתה סייע בנושא my.gov.il — האזור האישי הממשלתי. ניתן: הורדת ספח ת"ז, רישיון רכב, שינוי כתובת, העברת בעלות רכב. ענה בעברית פשוטה.'
   },
 
+
+  // ── ירושה וצוואה ──
+  {id:'inheritance', cat:'id', icon:'📜',
+   title:'ירושה, צוואה וצו ירושה',
+   desc:'הגשת בקשה לצו ירושה, צוואה, רשם לענייני ירושה',
+   kw:['ירושה','צוואה','צו ירושה','רשם','נפטר','עיזבון','יורש','עזבון','הורים נפטרו'],
+   steps:['הגישו בקשה לצו ירושה: כנסו לאתר inheritance.justice.gov.il.',
+          'יש לצרף: תעודת פטירה, ת"ז של היורשים, אישור תושבות.',
+          'ניתן לעקוב אחר סטטוס הבקשה ב-my.gov.il.',
+          'צוואה: ניתן להפקיד צוואה ברשם הירושה ולאחסנה בבטחה.'],
+   tip:'💡 ניתן להגיש בקשה לצו ירושה מקוון ולחסוך ביקור לסניף!',
+   canDo:['הגשת בקשה לצו ירושה אונליין','בדיקת סטטוס','הפקדת צוואה'],
+   cantDo:['ייעוץ משפטי — עורך דין','סכסוכי ירושה — בית משפט'],
+   links:[{t:'רשם לענייני ירושה — אונליין',u:'https://inheritance.justice.gov.il/',p:true},{t:'my.gov.il — סטטוס צו ירושה',u:'https://my.gov.il'}],
+   ai:'אתה סייע בנושא ירושה וצוואה בישראל. רשם לענייני ירושה: inheritance.justice.gov.il. ניתן להגיש צו ירושה אונליין. מעקב ב-my.gov.il. ענה בעברית פשוטה.'
+  },
+
+  // ── רשות האוכלוסין — שירותים נוספים ──
+  {id:'piba-services', cat:'id', icon:'🏢',
+   title:'רשות האוכלוסין — כל השירותים',
+   desc:'שינוי שם, רישום לידה, שינוי מצב אישי ועוד',
+   kw:['רשות האוכלוסין','שינוי שם','לידה','רישום ילד','מצב אישי','נישואין','גירושין','עלייה','אזרחות','תושבות'],
+   steps:['כנסו לפורטל השירות העצמי: govextra.gov.il/piba/piba-services/first-page.',
+          'זמינים: שינוי שם, רישום לידה, שינוי מצב אישי, הנפקת מסמכים.',
+          'לתורים: זמנו תור מהאתר ← בחרו שירות ← בחרו סניף ותאריך.',
+          'מוקד שירות ארצי: חייגו 3450.'],
+   tip:'💡 חלק מהשירותים ניתנים לביצוע מקוון מלא — בדקו לפני שמגיעים לסניף!',
+   canDo:['זימון תור לכל שירות','הנפקת מסמכים','שינוי פרטים מסוימים מקוון'],
+   cantDo:['שירותים הדורשים נוכחות פיזית — ביקול בסניף'],
+   links:[{t:'פורטל שירות עצמי — רשות האוכלוסין',u:'https://govextra.gov.il/piba/piba-services/first-page/',p:true},{t:'אתר רשות האוכלוסין',u:'https://www.gov.il/piba'}],
+   ai:'אתה סייע בנושא שירותי רשות האוכלוסין וההגירה בישראל. פורטל: govextra.gov.il/piba/piba-services/first-page. שירותים: שינוי שם, לידה, מצב אישי, דרכון, ת"ז. מוקד: *3450. ענה בעברית פשוטה.'
+  },
   // ── מיסים ──
   {id:'tax-main', cat:'tax', icon:'📄',
    title:'מס הכנסה — אישורים והחזרים',
@@ -719,9 +756,21 @@ var DB = [
    ai:'אתה סייע בנושא מס הכנסה ישראל. secapp.taxes.gov.il. אישורי הכנסה (PDF), בקשת החזר (עד 6 שנים), דוח שנתי (עצמאים עד 30.4). ענה בעברית פשוטה.'
   },
 
-  // ── תחבורה ──
+  {id:'transport-driving', cat:'transport', icon:'🪪',
+   title:'רישיון נהיגה — חידוש והנפקה',
+   desc:'חידוש, שדרוג, אובדן רישיון נהיגה',
+   kw:['רישיון נהיגה','דרייברס','חידוש רישיון','נהיגה','נהג','שדרוג רישיון','איבוד רישיון','אבדן רישיון'],
+   steps:['חידוש רישיון נהיגה: גשו לסניף רשות הרישוי הקרוב עם ת"ז ותמונה.',
+          'קביעת תור: gov.il ← קביעת תור רשות הרישוי.',
+          'רישיון אבוד: הצהרה במשטרה ← גשו לרשות הרישוי.',
+          'שדרוג קטגוריה (אוטובוס/משאית): דורש בחינה ורופא מוסמך.'],
+   tip:'💡 חידוש רישיון נהיגה חייב ביקור פיזי — לא ניתן לבצע אונליין!',
+   canDo:['קביעת תור לרשות הרישוי אונליין','בדיקת תוקף רישיון'],
+   cantDo:['חידוש רישיון — ביקור פיזי חובה','שדרוג קטגוריה — בחינה + רופא'],
+   links:[{t:'קביעת תור — רשות הרישוי',u:'https://rishuy.mot.gov.il/he/',p:true},{t:'רשות הרישוי — gov.il',u:'https://rishuy.mot.gov.il/he/'}],
+   ai:'אתה סייע בנושא רישיון נהיגה בישראל. חידוש: ביקור פיזי בסניף רשות הרישוי חובה, קבעו תור ב-gov.il. רישיון אבוד: הצהרה במשטרה + ביקור. שדרוג: בחינה + רופא. ענה בעברית פשוטה.'
+  },
   {id:'transport-license', cat:'transport', icon:'🚗',
-   title:'רישיון רכב — הורדה ועדכון',
    desc:'הורדה דיגיטלית, טסט, העברת בעלות',
    kw:['רישיון','רכב','טסט','בדיקה','בעלות','העברה'],
    steps:['הורדת רישיון: my.gov.il ← "רישיון רכב" ← הורידו PDF.',
@@ -736,17 +785,17 @@ var DB = [
   },
   {id:'transport-passport', cat:'transport', icon:'✈️',
    title:'דרכון ותעודת זהות',
-   desc:'הנפקה, חידוש, בדיקת תוקף',
-   kw:['דרכון','תעודת זהות','ת"ז','חידוש','הנפקה','תוקף'],
-   steps:['בדיקת תוקף דרכון: gov.il ← חיפוש "בדיקת תוקף דרכון".',
-          'חידוש דרכון: gov.il ← "קביעת תור משרד הפנים" ← הגיעו עם ת"ז + תמונה.',
-          'ספח ת"ז: my.gov.il ← "הורדת ספח ת"ז" ← PDF חתום.',
-          'ת"ז אבודה: my.gov.il ← "הפעלת ת"ז מאבדת".'],
-   tip:'💡 חידוש דרכון לוקח 4–6 שבועות. הזמינו תור מוקדם מראש!',
-   canDo:['בדיקת תוקף דרכון','קביעת תור חידוש','הורדת ספח ת"ז','הפעלת ת"ז אבודה'],
-   cantDo:['חידוש דרכון — ביקור בסניף חובה','הנפקת ת"ז חדשה — ביקור חובה'],
-   links:[{t:'קביעת תור — משרד הפנים',u:'https://www.gov.il/he/service/piba-appointment',p:true},{t:'my.gov.il',u:'https://my.gov.il'}],
-   ai:'אתה סייע בנושא דרכון ות"ז בישראל. בדיקת תוקף דרכון: gov.il. חידוש: ביקור בסניף חובה, קבעו תור ב-gov.il. ספח ת"ז + הפעלת ת"ז אבודה: my.gov.il. ענה בעברית פשוטה.'
+   desc:'הנפקה, חידוש, זימון תור — רשות האוכלוסין',
+   kw:['דרכון','תעודת זהות','ת"ז','חידוש','הנפקה','תוקף','משרד הפנים','תור','פנים','זהות','ביומטרי','רשות האוכלוסין','piba'],
+   steps:['זימון תור: כנסו ל-govextra.gov.il/piba/piba-services/first-page ← בחרו שירות.',
+          'שירותים זמינים: דרכון ביומטרי חדש, חידוש דרכון, תעודת זהות ביומטרית.',
+          'הגיעו לסניף עם: ת"ז קיימת, תמונה ביומטרית, תשלום אגרה.',
+          'ספח ת"ז דיגיטלי: my.gov.il ← הורדת ספח ת"ז ← PDF חתום (ללא ביקור).'],
+   tip:'💡 ניתן גם לחדש ת"ז מקוון מאז אפריל 2024! כנסו לאתר רשות האוכלוסין.',
+   canDo:['זימון תור אונליין','חידוש ת"ז מקוון (מאפריל 2024)','הורדת ספח ת"ז — my.gov.il'],
+   cantDo:['הנפקת דרכון חדש — ביקור חובה','ת"ז אבודה — ביקור בסניף'],
+   links:[{t:'זימון תור — רשות האוכלוסין',u:'https://govextra.gov.il/piba/piba-services/first-page/',p:true},{t:'חידוש ת"ז מקוון',u:'https://www.gov.il/he/service/application-for-biometric-passport-or-idcard'},{t:'my.gov.il — ספח ת"ז',u:'https://my.gov.il'}],
+   ai:'אתה סייע בנושא דרכון ות"ז בישראל. זימון תור: govextra.gov.il/piba/piba-services/first-page. חידוש ת"ז מקוון מאפריל 2024. ספח ת"ז: my.gov.il. מוקד: *3450. ענה בעברית פשוטה.'
   },
 
   // ── מגורים ──
@@ -778,18 +827,192 @@ var DB = [
    links:[{t:'הנחות ארנונה — משרד הפנים',u:'https://www.gov.il/he/service/arnona-discount',p:true},{t:'מידע על ארנונה — gov.il',u:'https://www.gov.il/he/departments/topics/arnona'}],
    ai:'אתה סייע בנושא ארנונה ועירייה בישראל. תשלום אונליין בחלק מהרשויות. הנחה לוותיקים עם הכנסה נמוכה — עד 90%. פנייה לאגף ארנונה. ענה בעברית פשוטה.'
   },
+
+  // ── פנסיה וביטוח ──
+  {id:'pension-main', cat:'btl', icon:'💰',
+   title:'פנסיה — בדיקת זכויות ומשיכה',
+   desc:'פנסיה תעסוקתית, קרנות פנסיה, קופות גמל',
+   kw:['פנסיה','קרן פנסיה','גמל','פיצויים','קופת גמל','ביטוח מנהלים','משיכת פנסיה','זכויות פנסיה'],
+   steps:['בדיקת כל הפנסיות שלכם: גשו ל-<strong>gov.il</strong> ← חיפוש "מסלקה פנסיונית".',
+          'ניתן לראות את כל קרנות הפנסיה וקופות הגמל שלכם במקום אחד.',
+          'לשאלות: פנו לאגף שוק ההון במשרד האוצר: 02-5016666.',
+          'גיל פרישה: גברים 67, נשים 62 (עולה). ניתן למשוך בגיל הפרישה.'],
+   tip:'💡 שכחתם פנסיה ישנה? המסלקה הפנסיונית מציאה כספים "שכוחים"!',
+   canDo:['בדיקת כל הפנסיות אונליין','הצגת יתרות'],
+   cantDo:['משיכת פנסיה — דרך קרן הפנסיה הספציפית','ייעוץ — יועץ פנסיוני מוסמך'],
+   links:[{t:'מסלקה פנסיונית — gov.il',u:'https://www.gov.il/he/service/pension-clearinghouse',p:true},{t:'רשות שוק ההון',u:'https://www.gov.il/he/departments/capital_market_authority'}],
+   ai:'אתה סייע בנושא פנסיה בישראל. מסלקה פנסיונית ב-gov.il מציגה כל הקרנות. גיל פרישה: גברים 67, נשים 62. לשאלות: 02-5016666. ענה בעברית פשוטה.'
+  },
+  {id:'btl-caregiver', cat:'btl', icon:'👨‍👩‍👧',
+   title:'קצבת שאירים',
+   desc:'קצבה לאלמן/אלמנה ויתומים מביטוח לאומי',
+   kw:['שאירים','אלמן','אלמנה','יתום','נפטר','פטירה','ירושה','קצבת שאירים'],
+   steps:['הגישו תביעה ב-btl.gov.il ← "טפסים מקוונים" ← "תביעה לקצבת שאירים" (טופס 1516).',
+          'צרפו: תעודת פטירה, ספח ת"ז שלכם, אישור חשבון בנק.',
+          'הזכאות נבדקת לפי גיל, הכנסה וצאצאים.',
+          'ניתן לקבל גם קצבת זקנה + קצבת שאירים יחד (הגבוהה ביניהן).'],
+   tip:'💡 יש להגיש תוך 12 חודשים מיום הפטירה לקבל תשלום רטרואקטיבי!',
+   canDo:['הגשת תביעה מקוונת','בדיקת סטטוס','עדכון בנק'],
+   cantDo:['ייעוץ אישי — התקשרו *6050'],
+   links:[{t:'קצבת שאירים — ביטוח לאומי',u:'https://www.btl.gov.il/benefits/survivors/Pages/default.aspx',p:true},{t:'טפסים מקוונים',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא קצבת שאירים מביטוח לאומי. טופס 1516. מסמכים: תעודת פטירה, ת"ז, בנק. יש להגיש תוך 12 חודשים. ענה בעברית פשוטה.'
+  },
+  {id:'health-basket', cat:'health', icon:'💉',
+   title:'סל הבריאות — תרופות וזכויות',
+   desc:'תרופות בסל, אישורים לתרופות, השתלות',
+   kw:['סל בריאות','תרופה','תרופות','אישור תרופה','השתלה','ועדה','ביטוח בריאות','שב"ן'],
+   steps:['בדיקה אם תרופה בסל: gov.il ← חיפוש "תרופות בסל הבריאות".',
+          'בקשה לתרופה שלא בסל: פנו לרופא המטפל ← ועדת חריגים בקופה.',
+          'ביטוח משלים (שב"ן): פנו לקופת החולים שלכם לפרטים.',
+          'זכויות חולה: gov.il ← "זכויות המטופל".'],
+   tip:'💡 כל תושב ישראל זכאי לסל הבריאות — גם מי שאין לו הכנסה!',
+   canDo:['בדיקת תרופות בסל אונליין','בקשת אישורים בקופה'],
+   cantDo:['אישור תרופה חריגה — ועדה פיזית בקופה'],
+   links:[{t:'סל הבריאות — gov.il',u:'https://www.gov.il/he/departments/topics/health-basket',p:true},{t:'משרד הבריאות',u:'https://www.gov.il/he/departments/ministry_of_health'}],
+   ai:'אתה סייע בנושא סל הבריאות בישראל. בדיקת תרופות בסל: gov.il. תרופה שלא בסל: ועדת חריגים בקופה. ביטוח משלים (שב"ן): קופת החולים. ענה בעברית פשוטה.'
+  },
+  {id:'btl-loan', cat:'btl', icon:'🏦',
+   title:'הלוואה מביטוח לאומי',
+   desc:'הלוואה לאזרחים ותיקים בריבית נמוכה',
+   kw:['הלוואה','אשראי','כסף','חוב','ביטוח לאומי','הלוואה לוותיקים'],
+   steps:['זכאים: מקבלי קצבת זקנה מביטוח לאומי.',
+          'פנו לסניף ביטוח לאומי הקרוב לבקשת הלוואה.',
+          'ניתן גם לזמן תור: btl.gov.il ← זימון תור לסניף.',
+          'סכום ההלוואה ותנאיה נקבעים לפי הכנסה וגיל.'],
+   tip:'💡 ההלוואה נפרעת מהקצבה החודשית — אין צורך בהוראת קבע נפרדת.',
+   canDo:['זימון תור לסניף אונליין'],
+   cantDo:['בקשת הלוואה אונליין — ביקור בסניף חובה'],
+   links:[{t:'זימון תור לסניף — ביטוח לאומי',u:'https://www.btl.gov.il/snifim/Pages/default.aspx',p:true},{t:'רשם לענייני ירושה',u:'https://inheritance.justice.gov.il/'}],
+   ai:'אתה סייע בנושא הלוואה מביטוח לאומי לאזרחים ותיקים. זכאים: מקבלי קצבת זקנה. ביקור בסניף חובה. זימון תור אונליין: btl.gov.il. ענה בעברית פשוטה.'
+  },
+
+
+  // ── תיאום מס וקיבוע זכויות ──
+  {id:'tax-coordination', cat:'tax', icon:'📈',
+   title:'תיאום מס',
+   desc:'תיאום מס לעובדים ממספר מקומות עבודה',
+   kw:['תיאום מס','ניכוי מס','מעסיק','עובד','משכורת','תלוש','ניכוי במקור','מספר מעסיקים'],
+   steps:['כנסו לאתר secapp.taxes.gov.il ← בחרו תיאום מס.',
+          'בחרו את השנה הרלוונטית ואת המעסיקים.',
+          'הגישו — האישור ישלח ישירות למעסיק.',
+          'ניתן לבצע גם בסניף פקיד שומה הקרוב.'],
+   tip:'💡 חובה לתאם מס אם עובדים אצל יותר ממעסיק אחד!',
+   canDo:['תיאום מס אונליין','בקשה לניכוי מופחת'],
+   cantDo:['שאלות מורכבות — יועץ מס או פקיד שומה'],
+   links:[{t:'תיאום מס — secapp.taxes.gov.il',u:'https://secapp.taxes.gov.il',p:true}],
+   ai:'אתה סייע בנושא תיאום מס בישראל. secapp.taxes.gov.il. נדרש כשיש יותר ממעסיק אחד. ענה בעברית פשוטה.'
+  },
+  {id:'tax-rights', cat:'tax', icon:'📑',
+   title:'קיבוע זכויות במס הכנסה',
+   desc:'הקפאת נקודות זיכוי לגמלאים מגיל 60',
+   kw:['קיבוע זכויות','נקודות זיכוי','פנסיה','גמלאי','פרישה','הטבת מס','הכנסה מפנסיה','גיל 60'],
+   steps:['מגיל 60 ניתן לקבע זכויות על הכנסה מפנסיה — חיסכון במס.',
+          'כנסו לאתר secapp.taxes.gov.il ← בחרו קיבוע זכויות.',
+          'מלאו את הפרטים ← הגישו. האישור תקף לכל החיים.',
+          'לא עשיתם? ניתן לבקש החזר רטרואקטיבי עד 6 שנים אחורה.'],
+   tip:'💡 קיבוע זכויות יכול לחסוך אלפי שקלים בשנה — מומלץ לכל גמלאי!',
+   canDo:['הגשת בקשה אונליין','בקשת החזר רטרואקטיבי'],
+   cantDo:['ייעוץ אישי — יועץ מס'],
+   links:[{t:'קיבוע זכויות — מס הכנסה',u:'https://secapp.taxes.gov.il',p:true}],
+   ai:'אתה סייע בנושא קיבוע זכויות במס הכנסה לגמלאים בישראל. מגיל 60. secapp.taxes.gov.il. ניתן רטרואקטיבי 6 שנים. ענה בעברית פשוטה.'
+  },
+  {id:'rights-senior', cat:'btl', icon:'🌟',
+   title:'מיצוי זכויות לאזרח ותיק',
+   desc:'בדיקת כל ההטבות והזכויות המגיעות לך',
+   kw:['מיצוי זכויות','זכויות','הטבות','הנחות','ותיק','גמלאי','בדיקת זכאות','מה מגיע לי'],
+   steps:['פנו למשרד לשוויון חברתי: חייגו 8840.',
+          'עובד סוציאלי בעירייה יכול לבצע בדיקת זכויות מקיפה — ללא עלות.',
+          'בדקו זכאות ל: קצבת זקנה, השלמת הכנסה, סיעוד, הנחות ארנונה, חשמל, תרופות.',
+          'אתר כל-זכות מכיל מדריך מיצוי זכויות מפורט לאזרחים ותיקים.'],
+   tip:'💡 הרבה ותיקים לא מממשים זכויות שמגיעות להם — שווה לבדוק!',
+   canDo:['פנייה טלפונית 8840','בדיקה עצמית באתר כל-זכות'],
+   cantDo:['בדיקה מקיפה — דורשת פגישה עם עובד סוציאלי'],
+   links:[{t:'משרד לשוויון חברתי',u:'https://www.gov.il/he/departments/ministry_of_social_equality',p:true},{t:'מנוע הזכויות הלאומי',u:'https://www.gov.il/he/service/rights-engine'},{t:'ביטוח לאומי',u:'https://www.btl.gov.il'}],
+   ai:'אתה סייע בנושא מיצוי זכויות לאזרחים ותיקים בישראל. פנייה: *8840 או עובד סוציאלי. זכויות: קצבת זקנה, השלמת הכנסה, סיעוד, הנחות. ענה בעברית פשוטה.'
+  },
+  {id:'rights-disabled', cat:'btl', icon:'♿',
+   title:'תעודת נכה והטבות נכות',
+   desc:'תעודת נכה, תג נכה לחניה, הנחות תחבורה',
+   kw:['תעודת נכה','תג נכה','חניה','נכות','הנחה','תחבורה','נגישות','אחוזי נכות'],
+   steps:['תעודת נכה מונפקת לאחר קביעת אחוזי נכות ע"י גורם רפואי מוסמך.',
+          'תג נכה לחניה: פנו לרשות הרישוי עם אישור רפואי ← my.gov.il ← שיוך תג נכה לרכב.',
+          'הנחות בתחבורה ציבורית: הציגו תעודת נכה בקופה.',
+          'הנחות נוספות: ארנונה, טלפון, חשמל — בדקו מול כל גוף בנפרד.'],
+   tip:'💡 תג נכה לחניה ניתן לשייך לרכב שמסיע אתכם — לא חייב להיות הרכב שלכם!',
+   canDo:['שיוך תג נכה לרכב — my.gov.il','בקשת הנחות אונליין בחלק מהגופים'],
+   cantDo:['הנפקת תעודת נכה — ועדה רפואית פיזית חובה'],
+   links:[{t:'my.gov.il — שיוך תג נכה',u:'https://my.gov.il',p:true},{t:'נכות — ביטוח לאומי',u:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא תעודת נכה והטבות נכות בישראל. תג נכה לחניה: my.gov.il. הנחות תחבורה, ארנונה, חשמל. ועדה רפואית לקביעת אחוזים. ענה בעברית פשוטה.'
+  },
+  {id:'payments-electric', cat:'housing', icon:'💡',
+   title:'תשלום חשמל ומים',
+   desc:'תשלום אונליין, הנחות לוותיקים, עדכון פרטים',
+   kw:['חשמל','מים','תשלום','חוב','חשבון','חברת חשמל','מקורות','הנחה','ועד בית'],
+   steps:['תשלום חשמל: כנסו לאתר iec.co.il ← אזור אישי ← שלמו חשבון.',
+          'תשלום מים: אתר תאגיד המים של הרשות המקומית שלכם.',
+          'הנחת חשמל לנכים וותיקים: פנו לחברת החשמל עם אישור זכאות.',
+          'הנחת מים: פנו לתאגיד המים המקומי.'],
+   tip:'💡 ותיקים עם קצבת נכות או סיעוד זכאים להנחה של עד 50% בחשמל!',
+   canDo:['תשלום חשמל אונליין','בדיקת חוב','עדכון פרטי בנק'],
+   cantDo:['הנחה — דורשת הגשת מסמכים לחברת החשמל'],
+   links:[{t:'חברת חשמל — iec.co.il',u:'https://www.iec.co.il',p:true},{t:'הנחות חשמל — gov.il',u:'https://www.gov.il/he/departments/topics/electricity'}],
+   ai:'אתה סייע בנושא תשלום חשמל ומים בישראל. חשמל: iec.co.il. הנחה לנכים וותיקים עד 50%. מים: תאגיד מים מקומי. ענה בעברית פשוטה.'
+  },
+  {id:'payments-gov', cat:'tax', icon:'🏧',
+   title:'תשלומים לרשויות הממשלה',
+   desc:'תשלום קנסות, אגרות ורישיונות לממשלה',
+   kw:['תשלום','קנס','אגרה','רישיון','ממשלה','משרד','תשלום ממשלתי','רב קו','rav-kav'],
+   steps:['כנסו לאתר pay.gov.il — פורטל התשלומים הממשלתי.',
+          'בחרו סוג תשלום: קנס תנועה, אגרת דרכון, אגרת רישיון וכו.',
+          'שלמו בכרטיס אשראי — מקבלים קבלה מיידית.',
+          'רב-קו: טעינה באתר ravkav.co.il או בתחנות.'],
+   tip:'💡 pay.gov.il מרכז את רוב התשלומים לממשלה — חיסכון בזמן!',
+   canDo:['תשלום קנסות תנועה','תשלום אגרות','טעינת רב-קו'],
+   cantDo:['ערעור על קנס — יש לפנות לגורם המוציא'],
+   links:[{t:'פורטל תשלומים — pay.gov.il',u:'https://www.gov.il/he/pages/payments-services',p:true},{t:'קנסות תנועה — gov.il',u:'https://www.gov.il/he/pages/payments-services'}],
+   ai:'אתה סייע בנושא תשלומים לרשויות ממשלתיות בישראל. pay.gov.il לקנסות, אגרות, רישיונות. רב-קו: ravkav.co.il. ענה בעברית פשוטה.'
+  },
+  {id:'btl-holocaust', cat:'btl', icon:'✡️',
+   title:'זכויות ניצולי שואה',
+   desc:'תגמולים, קצבאות וזכויות מיוחדות לניצולים',
+   kw:['ניצול שואה','שואה','תגמול','רשות לזכויות','פיצויים','גרמניה','ניצולים'],
+   steps:['פנו לרשות לזכויות ניצולי שואה: 02-5600700.',
+          'בדקו זכאות ל: תגמול מהאוצר, גמלת סיעוד מיוחדת, הטבות נוספות.',
+          'פיצויים מגרמניה: פנו לגורם המטפל הרלוונטי לפי מוצאכם.',
+          'ניתן לפנות גם למשרד השוויון החברתי: 8840.'],
+   tip:'💡 הרבה ניצולים לא ממצים את כל זכויותיהם — כדאי לפנות לבדיקה מקיפה!',
+   canDo:['פנייה טלפונית','בדיקת זכאות'],
+   cantDo:['הגשת תביעות — לרוב דורש ליווי אישי'],
+   links:[{t:'רשות לזכויות ניצולי שואה',u:'https://www.gov.il/he/departments/holocaust_survivors_rights_authority',p:true}],
+   ai:'אתה סייע בנושא זכויות ניצולי שואה בישראל. רשות לזכויות ניצולי שואה: 02-5600700. תגמולים, קצבאות, פיצויים מגרמניה. ענה בעברית פשוטה.'
+  },
+  {id:'health-appointment', cat:'health', icon:'📅',
+   title:'קביעת תור לרופא — כל הקופות',
+   desc:'מדריך קביעת תורים בכל קופות החולים',
+   kw:['תור','קביעת תור','רופא','מומחה','רופא משפחה','ספציאליסט','תור דחוף','המתנה','ביטול תור'],
+   steps:['כנסו לאתר קופת החולים שלכם: כללית, מכבי, לאומית או מאוחדת.',
+          'כניסה עם ת"ז וסיסמה ← קביעת תור ← בחרו מומחה ורופא.',
+          'אין תורים? בדקו ביטולים בבוקר בין 8 ל-9 — לרוב מתפנים.',
+          'זכות לתור מומחה בתוך 30 יום — אם לא — פנו לקופה לדרישה.'],
+   tip:'💡 זכאים לתור מומחה תוך 30 יום. אם עובר — ניתן להתלונן למשרד הבריאות.',
+   canDo:['קביעת תור אונליין','ביטול ושינוי תור','בדיקת זמני המתנה'],
+   cantDo:['מצב חירום — 101 בלבד','החלפת קופה — רק ב-1 בינואר'],
+   links:[{t:'כללית',u:'https://www.clalit.co.il',p:true},{t:'מכבי',u:'https://www.maccabi4u.co.il'},{t:'לאומית',u:'https://www.leumit.co.il'},{t:'מאוחדת',u:'https://www.meuhedet.co.il'}],
+   ai:'אתה סייע בנושא קביעת תורים לרופאים בקופות חולים ישראל. זכות לתור מומחה תוך 30 יום. כללית: clalit.co.il, מכבי: maccabi4u.co.il, לאומית: leumit.co.il, מאוחדת: meuhedet.co.il. ענה בעברית פשוטה.'
+  },
+
 ];
 
 // ════════════════════════════════
 //  עצי קטגוריות
 // ════════════════════════════════
 var CAT_MAP = {
-  btl:       { label:'🏦 ביטוח לאומי', ids:['btl-old','btl-nursing','btl-income','btl-disability'] },
-  health:    { label:'🏥 בריאות',       ids:['health-clalit','health-maccabi','health-leumit','health-meuhedet','health-hospital'] },
-  id:        { label:'🔑 הזדהות',       ids:['id-login','id-mygov'] },
-  tax:       { label:'📄 מיסים',        ids:['tax-main'] },
-  transport: { label:'🚗 תחבורה',      ids:['transport-license','transport-passport'] },
-  housing:   { label:'🏠 מגורים',      ids:['housing-address','housing-arnona'] },
+  btl:       { label:'🏦 ביטוח לאומי', ids:['btl-old','btl-nursing','btl-income','btl-disability','btl-caregiver','btl-loan','pension-main','rights-senior','rights-disabled','btl-holocaust'] },
+  health:    { label:'🏥 בריאות',       ids:['health-appointment','health-clalit','health-maccabi','health-leumit','health-meuhedet','health-hospital','health-basket'] },
+  id:        { label:'🔑 הזדהות',       ids:['id-login','id-mygov','piba-services','inheritance'] },
+  tax:       { label:'📄 מיסים',        ids:['tax-main','tax-coordination','tax-rights','payments-gov'] },
+  transport: { label:'🚗 תחבורה',      ids:['transport-driving','transport-license','transport-passport'] },
+  housing:   { label:'🏠 מגורים',      ids:['housing-address','housing-arnona','payments-electric'] },
 };
 
 // ════════════════════════════════
@@ -828,55 +1051,124 @@ function updateBreadcrumb() {
 // ════════════════════════════════
 function searchNow() {
   var el = document.getElementById('free-input');
-  var q = el ? el.value.trim() : '';
+  if (!el) return;
+  var q = el.value.trim();
   if (!q) return;
 
-  // חפש במאגר
-  var results = [];
-  for (var i = 0; i < DB.length; i++) {
-    var item = DB[i];
-    var text = item.title + ' ' + item.desc + ' ' + item.kw.join(' ');
-    var words = q.split(' ');
-    var found = false;
-    for (var j = 0; j < words.length; j++) {
-      if (words[j].length >= 2 && text.indexOf(words[j]) >= 0) {
-        found = true; break;
-      }
-    }
-    if (found) results.push(item);
-    if (results.length >= 5) break;
-  }
-
   var area = document.getElementById('free-results');
+  var s1ai = document.getElementById('s1-ai-area');
 
-  if (results.length > 0) {
-    var html = '<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;font-weight:700">' + results.length + ' תוצאות</div>';
-    for (var r = 0; r < results.length; r++) {
-      var it = results[r];
-      html += '<div onclick="openItem(\'' + it.id + '\')" style="background:#1e293b;border:1.5px solid #334155;border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;">';
-      html += '<div style="font-weight:700;font-size:14px;margin-bottom:3px">' + it.icon + ' ' + it.title + '</div>';
-      html += '<div style="font-size:12px;color:#94a3b8">' + it.desc + '</div>';
-      html += '</div>';
-    }
-    area.innerHTML = html;
-  } else {
-    // אין תוצאות — קרא ל-AI
-    area.innerHTML = '<div style="font-size:13px;color:#94a3b8;padding:6px 0">לא נמצא במאגר — מחפש תשובת AI...</div>';
-    callAIFree(q);
+  // תמיד הולך ל-AI — כמו גימלאטק
+  area.innerHTML = '';
+  s1ai.classList.remove('hidden');
+  document.getElementById('s1-ai-typing').style.display = 'flex';
+  document.getElementById('s1-ai-content').innerHTML = '';
+
+  var fullSystem = [
+    'אתה סייע מומחה לשירותים ממשלתיים ישראליים, עבור אזרחים ותיקים ומתנדבים שעוזרים להם.',
+    '',
+    'אתרים רשמיים ומה ניתן לעשות בכל אחד:',
+    '- gov.il — שער כל השירותים הממשלתיים. חיפוש שירות לפי נושא.',
+    '- my.gov.il — האזור האישי: ספח ת"ז, רישיון רכב, שינוי כתובת, העברת בעלות רכב, חידוש רישיון נהיגה, תג נכה, מעקב אחר בקשת דרכון, סטטוס צו ירושה.',
+    '- login.gov.il — הזדהות ממשלתית: ת"ז + סיסמה + קוד SMS. הרשמה חד-פעמית.',
+    '- govextra.gov.il/piba/piba-services/first-page — רשות האוכלוסין וההגירה: זימון תור לדרכון, ת"ז, שינוי שם, רישום לידה, שינוי מצב אישי. מוקד: *3450.',
+    '- btl.gov.il — ביטוח לאומי: קצבת זקנה (טופס 1514), סיעוד (4840), נכות (5130), הבטחת הכנסה (6114), שאירים (1516). לוח תשלומים, בדיקת סטטוס, עדכון בנק.',
+    '- secapp.taxes.gov.il — מס הכנסה: אישורי הכנסה, החזר מס (עד 6 שנים אחורה), תיאום מס, קיבוע זכויות (מגיל 60), הגשת דוח שנתי.',
+    '- clalit.co.il / maccabi4u.co.il / leumit.co.il / meuhedet.co.il — קופות חולים: תורים, בדיקות, מרשמים, שיחת וידאו.',
+    '- rishuy.mot.gov.il — רשות הרישוי: חידוש רישיון נהיגה, זימון תור. מוקד: *4515.',
+    '- gov.il/he/service/car-test-appointment — זימון תור לטסט רכב.',
+    '- inheritance.justice.gov.il — רשם לענייני ירושה: הגשת בקשה לצו ירושה, הפקדת צוואה.',
+    '- gov.il/he/pages/payments-services — תשלומים ממשלתיים: קנסות, אגרות, רישיונות.',
+    '- iec.co.il — חברת חשמל: תשלום, הנחות לנכים וותיקים.',
+    '- gov.il/he/departments/capital_market_authority — מסלקה פנסיונית: בדיקת כל קרנות הפנסיה.',
+    '- gov.il/he/departments/holocaust_survivors_rights_authority — רשות לזכויות ניצולי שואה. טל: 02-5600700.',
+    '',
+    'ענה תמיד בפורמט:',
+    '**כותרת קצרה**',
+    '1. שלב ראשון',
+    '2. שלב שני',
+    '3. שלב שלישי (אם צריך)',
+    '🔐 הזדהות: [אם נדרשת: "נדרש חשבון ב-login.gov.il". אם לא: "אין צורך בהזדהות"]',
+    '💡 טיפ קצר ומעשי',
+    '',
+    'כללים: אל תכתוב קישורים — הם יוצגו אוטומטית. שפה פשוטה מאוד. אם נדרשת פנייה פיזית — ציין היכן ומה להביא.'
+  ].join('\n');
+
+  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem))
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    document.getElementById('s1-ai-typing').style.display = 'none';
+    var text = (data.content && data.content[0] && data.content[0].text)
+      ? data.content[0].text
+      : 'מצטער, לא הצלחתי לקבל תשובה. נסו שוב.';
+    renderS1AI(text, q);
+  })
+  .catch(function(){
+    document.getElementById('s1-ai-typing').style.display = 'none';
+    document.getElementById('s1-ai-content').innerHTML =
+      '<div style="color:#fca5a5;font-size:14px">⚠️ בעיית חיבור. בדקו אינטרנט ונסו שוב.</div>';
+  });
+}
+
+
+function renderS1AI(text, q) {
+  var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  var title = '', steps = [], tip = '', auth = '';
+  lines.forEach(function(line){
+    if (line.startsWith('**') && line.endsWith('**')) title = line.replace(/\*\*/g,'');
+    else if (/^[1-5]\.\s/.test(line)) steps.push(line.replace(/^[1-5]\.\s/,''));
+    else if (line.startsWith('🔐')) auth = line;
+    else if (line.startsWith('💡')) tip = line;
+    else if (!title && steps.length === 0) title = line.replace(/\*\*/g,'');
+  });
+
+  var html = '';
+  if (title) html += '<div style="font-size:16px;font-weight:700;margin-bottom:14px;color:#f1f5f9">' + escH(title) + '</div>';
+
+  steps.forEach(function(s, i){
+    html += '<div class="ai-step"><div class="ai-step-num">' + (i+1) + '</div><div class="ai-step-text">' + escH(s) + '</div></div>';
+  });
+
+  if (!title && !steps.length) html += '<div class="ai-content">' + escH(text) + '</div>';
+
+  // הזדהות
+  if (auth) {
+    var noAuth = auth.indexOf('אין צורך') >= 0;
+    html += '<div style="background:' + (noAuth ? 'rgba(52,211,153,0.1)' : 'rgba(251,191,36,0.1)') + ';border-right:3px solid ' + (noAuth ? '#34d399' : '#fbbf24') + ';padding:10px 12px;border-radius:8px;font-size:13px;color:' + (noAuth ? '#34d399' : '#fde68a') + ';margin-top:12px">' + escH(auth) + '</div>';
   }
+
+  if (tip) html += '<div class="ai-tip">' + escH(tip) + '</div>';
+
+  // תמיד הצג כפתורי קטגוריות לפרטים נוספים
+  html += '<div style="font-size:12px;color:#64748b;margin:16px 0 8px;font-weight:700">📋 לפרטים נוספים — בחרו נושא:</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">';
+  var cats = [
+    {id:'btl',      label:'🏦 ביטוח לאומי'},
+    {id:'health',   label:'🏥 בריאות'},
+    {id:'id',       label:'🔑 הזדהות'},
+    {id:'tax',      label:'📄 מיסים'},
+    {id:'transport',label:'🚗 תחבורה'},
+    {id:'housing',  label:'🏠 מגורים'}
+  ];
+  cats.forEach(function(c){
+    html += '<button onclick="selectCat(\'' + c.id + '\')" style="padding:10px 8px;border-radius:10px;background:var(--surface);border:1.5px solid var(--border);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;transition:all .15s" onmouseover="this.style.borderColor=\'#38bdf8\';this.style.color=\'#38bdf8\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">' + c.label + '</button>';
+  });
+  html += '</div>';
+
+  html += '<button class="btn-reset" onclick="resetSearch()" style="margin-top:14px">🔄 שאלה חדשה</button>';
+  document.getElementById('s1-ai-content').innerHTML = html;
 }
 
-function onFreeInput() {
-  // ריק — החיפוש רק בלחיצה
+function resetSearch() {
+  document.getElementById('free-input').value = '';
+  document.getElementById('free-results').innerHTML = '';
+  document.getElementById('s1-ai-area').classList.add('hidden');
+  document.getElementById('s1-ai-content').innerHTML = '';
 }
 
-function doFreeSearch() {
-  searchNow();
-}
-
-function freeSearch(q) {
-  return [];
-}
+function onFreeInput() {}
+function doFreeSearch() { searchNow(); }
+function freeSearch(q) { return []; }
 
 function renderFreeResults(matches, q) {
   var area = document.getElementById('free-results');
@@ -962,14 +1254,6 @@ function openItem(id) {
   html += '<div class="can-box no"><div class="can-box-title">🚫 דורש ביקור / טלפון</div><ul>';
   item.cantDo.forEach(function(x){ html+='<li>'+x+'</li>'; });
   html += '</ul></div>';
-
-  // קישורים
-  html += '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 8px">🔗 קישורים ישירים</div>';
-  html += '<div class="link-btn-row">';
-  item.links.forEach(function(l){
-    html += '<a href="'+l.u+'" target="_blank" class="gov-link'+(l.p?' primary':'')+'">'+l.t+' ↗</a>';
-  });
-  html += '</div>';
 
   // כפתור העתקה + שיתוף WA
   var plainText = item.icon+' '+item.title+'\n\n';
