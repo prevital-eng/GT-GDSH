@@ -370,14 +370,23 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
       <div class="screen-sub">כתבו שאלה חופשית — או בחרו נושא</div>
 
       <!-- חיפוש חופשי -->
-      <div class="free-search-box">
-        <button class="search-go" onclick="doFreeSearch()" type="button">🔍</button>
-        <input type="text" id="free-input"
-          placeholder="לדוגמה: איך מגישים תביעה לקצבת זקנה?"
-          oninput="onFreeInput()" onkeydown="if(event.key==='Enter')doFreeSearch()">
+      <div style="margin-bottom:12px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="free-input"
+            style="flex:1;background:#1e293b;border:2px solid #334155;border-radius:12px;
+                   color:#f1f5f9;padding:13px 16px;font-size:15px;font-family:Heebo,sans-serif;
+                   outline:none;direction:rtl;"
+            placeholder="לדוגמה: איך קובעים תור לרופא?"
+            onkeydown="if(event.key==='Enter'){searchNow();}">
+          <button type="button"
+            style="background:#38bdf8;border:none;border-radius:12px;
+                   color:#0f172a;padding:13px 18px;font-size:15px;font-weight:700;
+                   font-family:Heebo,sans-serif;cursor:pointer;white-space:nowrap;"
+            onclick="searchNow()">חפש 🔍</button>
+        </div>
       </div>
 
-      <!-- תוצאות חיפוש חופשי -->
+      <!-- תוצאות חיפוש -->
       <div id="free-results" class="free-results"></div>
 
       <!-- OR -->
@@ -817,52 +826,56 @@ function updateBreadcrumb() {
 // ════════════════════════════════
 //  חיפוש חופשי
 // ════════════════════════════════
-function onFreeInput() {
-  var q = document.getElementById('free-input').value.trim();
-  var area = document.getElementById('free-results');
-  if (!q) { area.innerHTML = ''; return; }
-  var matches = freeSearch(q);
-  if (matches.length) {
-    renderFreeResults(matches, q);
-  } else {
-    area.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">לחצו על 🔍 לקבלת תשובת AI</div>';
-  }
-}
-
-function doFreeSearch() {
-  var q = document.getElementById('free-input').value.trim();
+function searchNow() {
+  var el = document.getElementById('free-input');
+  var q = el ? el.value.trim() : '';
   if (!q) return;
-  var matches = freeSearch(q);
-  if (matches.length) {
-    renderFreeResults(matches, q);
+
+  // חפש במאגר
+  var results = [];
+  for (var i = 0; i < DB.length; i++) {
+    var item = DB[i];
+    var text = item.title + ' ' + item.desc + ' ' + item.kw.join(' ');
+    var words = q.split(' ');
+    var found = false;
+    for (var j = 0; j < words.length; j++) {
+      if (words[j].length >= 2 && text.indexOf(words[j]) >= 0) {
+        found = true; break;
+      }
+    }
+    if (found) results.push(item);
+    if (results.length >= 5) break;
+  }
+
+  var area = document.getElementById('free-results');
+
+  if (results.length > 0) {
+    var html = '<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;font-weight:700">' + results.length + ' תוצאות</div>';
+    for (var r = 0; r < results.length; r++) {
+      var it = results[r];
+      html += '<div onclick="openItem(\'' + it.id + '\')" style="background:#1e293b;border:1.5px solid #334155;border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;">';
+      html += '<div style="font-weight:700;font-size:14px;margin-bottom:3px">' + it.icon + ' ' + it.title + '</div>';
+      html += '<div style="font-size:12px;color:#94a3b8">' + it.desc + '</div>';
+      html += '</div>';
+    }
+    area.innerHTML = html;
   } else {
+    // אין תוצאות — קרא ל-AI
+    area.innerHTML = '<div style="font-size:13px;color:#94a3b8;padding:6px 0">לא נמצא במאגר — מחפש תשובת AI...</div>';
     callAIFree(q);
   }
 }
 
+function onFreeInput() {
+  // ריק — החיפוש רק בלחיצה
+}
+
+function doFreeSearch() {
+  searchNow();
+}
+
 function freeSearch(q) {
-  // פיצול לפי רווחים — כל מילה בנפרד
-  var words = q.split(/\s+/).filter(function(w){ return w.length >= 2; });
-  if (!words.length) return [];
-  var scored = [];
-  DB.forEach(function(item){
-    // בנה מחרוזת חיפוש מכל השדות
-    var haystack = item.title + ' ' + item.desc + ' ' + item.kw.join(' ');
-    var sc = 0;
-    words.forEach(function(w){
-      // חיפוש ישיר ללא toLowerCase (עברית)
-      if (haystack.indexOf(w) !== -1) {
-        sc += 3;
-      }
-      // חיפוש חלקי — לפחות 2 תווים
-      else if (w.length >= 2 && haystack.indexOf(w.substring(0, 2)) !== -1) {
-        sc += 1;
-      }
-    });
-    if (sc > 0) scored.push({ item: item, sc: sc });
-  });
-  scored.sort(function(a, b){ return b.sc - a.sc; });
-  return scored.slice(0, 5).map(function(s){ return s.item; });
+  return [];
 }
 
 function renderFreeResults(matches, q) {
