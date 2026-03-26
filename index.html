@@ -126,7 +126,8 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
   width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; font-size: 16px; flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background 0.15s; font-family: 'Heebo', sans-serif;
+  padding: 0;
 }
 .search-go:hover { background: #7dd3fc; }
 .search-go:disabled { background: var(--border); cursor: default; }
@@ -370,7 +371,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
 
       <!-- חיפוש חופשי -->
       <div class="free-search-box">
-        <div class="search-go" onclick="doFreeSearch()">🔍</div>
+        <button class="search-go" onclick="doFreeSearch()" type="button">🔍</button>
         <input type="text" id="free-input"
           placeholder="לדוגמה: איך מגישים תביעה לקצבת זקנה?"
           oninput="onFreeInput()" onkeydown="if(event.key==='Enter')doFreeSearch()">
@@ -537,7 +538,7 @@ var DB = [
   {id:'btl-old', cat:'btl', icon:'👴',
    title:'קצבת אזרח ותיק (זקנה)',
    desc:'קצבה חודשית לגברים מגיל 67, נשים מגיל 62',
-   kw:['זקנה','ותיק','קצבה','פנסיה','גמלה','כסף','חודשי'],
+   kw:['זקנה','ותיק','קצבה','פנסיה','גמלה','כסף','חודשי','אזרח','תשלום','זכאות','ביטוח לאומי','גיל פרישה'],
    steps:['גשו לאתר <strong>btl.gov.il</strong> ← "טפסים מקוונים" ← טופס <strong>1514</strong>.',
           'מלאו פרטים אישיים + העלו: ספח ת"ז ואישור חשבון בנק.',
           'שלחו. עקבו אחר הסטטוס ב"אזור האישי" — טיפול 2–3 שבועות.',
@@ -551,7 +552,7 @@ var DB = [
   {id:'btl-nursing', cat:'btl', icon:'🏥',
    title:'קצבת סיעוד',
    desc:'עזרה בבית לתלויים, שלוש רמות גמלה',
-   kw:['סיעוד','עזרה','בית','טיפול','מטפל','תלות','עזרה בבית'],
+   kw:['סיעוד','עזרה','בית','טיפול','מטפל','תלות','עזרה בבית','קשיש','סיוע','עובד זר','גמלה','ביטוח לאומי'],
    steps:['אתר btl.gov.il ← "טפסים מקוונים" ← טופס <strong>4840</strong>.',
           'פקיד ביטוח לאומי יגיע לביתכם לבדיקת רמת התלות.',
           'תיקבע רמה: חלקית / מלאה / מוגברת.',
@@ -595,7 +596,7 @@ var DB = [
   {id:'health-clalit', cat:'health', icon:'💙',
    title:'כללית — תורים ושירותים',
    desc:'clalit.co.il — קביעת תור, בדיקות, מרשמים',
-   kw:['כללית','תור','רופא','בדיקה','מרשם','clalit'],
+   kw:['כללית','תור','רופא','בדיקה','מרשם','clalit','קביעת תור','קופת חולים','מומחה','תוצאות'],
    steps:['היכנסו ל-<strong>clalit.co.il</strong> עם מספר ת"ז וסיסמה.',
           'קביעת תור: "תורים ← קביעת תור" ← בחרו רופא ← בחרו תאריך.',
           'תוצאות בדיקות: "הבדיקות שלי" — מופיעות תוך 24–48 שעות.',
@@ -697,7 +698,7 @@ var DB = [
   {id:'tax-main', cat:'tax', icon:'📄',
    title:'מס הכנסה — אישורים והחזרים',
    desc:'אישורי הכנסה, החזר מס, דוח שנתי',
-   kw:['מס','הכנסה','החזר','אישור','דוח','שנתי','מס הכנסה'],
+   kw:['מס','הכנסה','החזר','אישור','דוח','שנתי','מס הכנסה','תור','פקיד שומה','רשות המסים','טופס','החזר מס','תשלום מס','פטור'],
    steps:['היכנסו ל-<strong>secapp.taxes.gov.il</strong>.',
           'אישור הכנסות: "אישור הכנסות שנתי" ← בחרו שנה ← הורידו PDF.',
           'החזר מס: "בקשת החזר מס" ← מלאו (עד 6 שנים אחורה!).',
@@ -818,29 +819,50 @@ function updateBreadcrumb() {
 // ════════════════════════════════
 function onFreeInput() {
   var q = document.getElementById('free-input').value.trim();
-  if (!q) { document.getElementById('free-results').innerHTML=''; return; }
+  var area = document.getElementById('free-results');
+  if (!q) { area.innerHTML = ''; return; }
   var matches = freeSearch(q);
-  renderFreeResults(matches, q);
+  if (matches.length) {
+    renderFreeResults(matches, q);
+  } else {
+    area.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">לחצו על 🔍 לקבלת תשובת AI</div>';
+  }
 }
 
 function doFreeSearch() {
   var q = document.getElementById('free-input').value.trim();
   if (!q) return;
   var matches = freeSearch(q);
-  if (matches.length) { renderFreeResults(matches, q); }
-  else { callAIFree(q); }
+  if (matches.length) {
+    renderFreeResults(matches, q);
+  } else {
+    callAIFree(q);
+  }
 }
 
 function freeSearch(q) {
-  var words = q.toLowerCase().split(/\s+/);
+  // פיצול לפי רווחים — כל מילה בנפרד
+  var words = q.split(/\s+/).filter(function(w){ return w.length >= 2; });
+  if (!words.length) return [];
   var scored = [];
   DB.forEach(function(item){
-    var text = (item.title+' '+item.desc+' '+item.kw.join(' ')).toLowerCase();
-    var sc=0; words.forEach(function(w){ if(text.indexOf(w)!==-1) sc++; });
-    if(sc>0) scored.push({item:item,sc:sc});
+    // בנה מחרוזת חיפוש מכל השדות
+    var haystack = item.title + ' ' + item.desc + ' ' + item.kw.join(' ');
+    var sc = 0;
+    words.forEach(function(w){
+      // חיפוש ישיר ללא toLowerCase (עברית)
+      if (haystack.indexOf(w) !== -1) {
+        sc += 3;
+      }
+      // חיפוש חלקי — לפחות 2 תווים
+      else if (w.length >= 2 && haystack.indexOf(w.substring(0, 2)) !== -1) {
+        sc += 1;
+      }
+    });
+    if (sc > 0) scored.push({ item: item, sc: sc });
   });
-  scored.sort(function(a,b){return b.sc-a.sc;});
-  return scored.slice(0,5).map(function(s){return s.item;});
+  scored.sort(function(a, b){ return b.sc - a.sc; });
+  return scored.slice(0, 5).map(function(s){ return s.item; });
 }
 
 function renderFreeResults(matches, q) {
@@ -964,16 +986,17 @@ function doFollowup() {
 }
 
 function callAIFree(q) {
+  state.item = null;
+  state.catLabel = '';
+  // עוברים למסך 3 קודם
+  document.getElementById('s3-back-btn').onclick = function(){ goBack(1); };
+  document.getElementById('static-answer').innerHTML = '';
+  showScreen(3);
+  // עכשיו מגדירים את ה-AI area
   var aiArea = document.getElementById('ai-area');
   aiArea.classList.remove('hidden');
   document.getElementById('ai-typing').classList.remove('hidden');
-  document.getElementById('ai-content').innerHTML='';
-  document.getElementById('free-results').innerHTML='';
-  state.item = null;
-  state.catLabel = '';
-  showScreen(3);
-  document.getElementById('s3-back-btn').onclick = function(){ goBack(1); };
-  document.getElementById('static-answer').innerHTML = '';
+  document.getElementById('ai-content').innerHTML = '';
   callAI(q, 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. כלול שלבים ברורים וקישורים רלוונטיים.');
 }
 
