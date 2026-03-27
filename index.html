@@ -1058,29 +1058,11 @@ function searchNow() {
   var area = document.getElementById('free-results');
   var s1ai = document.getElementById('s1-ai-area');
 
-  // חפש תחילה במאגר — title+kw בלבד, עם ניקוד
-  var words = q.split(' ').filter(function(w){ return w.length >= 2; });
-  var best = null, bestScore = 0;
-  for (var i = 0; i < DB.length; i++) {
-    var item = DB[i];
-    var titleHaystack = item.title + ' ' + item.desc;
-    var kwHaystack = item.kw.join(' ');
-    var sc = 0;
-    for (var j = 0; j < words.length; j++) {
-      var w = words[j];
-      if (titleHaystack.indexOf(w) >= 0) sc += 4; // title = ניקוד גבוה
-      else if (kwHaystack.indexOf(w) >= 0) sc += 2; // kw = ניקוד בינוני
-    }
-    if (sc > bestScore) { bestScore = sc; best = item; }
-  }
-
-  // אם יש התאמה טובה (ציון 4+) — פתח ישירות
-  if (best && bestScore >= 4) {
-    area.innerHTML = '';
-    s1ai.classList.add('hidden');
-    openItem(best.id);
-    return;
-  }
+  // תמיד עובר ל-AI — הוא מבין הקשר טוב יותר מחיפוש מילות מפתח
+  area.innerHTML = '';
+  s1ai.classList.remove('hidden');
+  document.getElementById('s1-ai-typing').style.display = 'flex';
+  document.getElementById('s1-ai-content').innerHTML = '';
 
   // אם התאמה חלשה — הצג AI
   area.innerHTML = '';
