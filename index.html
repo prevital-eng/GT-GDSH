@@ -1287,6 +1287,9 @@ function resetSearch() {
   document.getElementById('free-results').innerHTML = '';
   document.getElementById('s1-ai-area').classList.add('hidden');
   document.getElementById('s1-ai-content').innerHTML = '';
+  if (typeof selectedMinistry !== 'undefined') selectedMinistry = null;
+  var bar = document.getElementById('selected-ministry-bar');
+  if (bar) bar.style.display = 'none';
 }
 
 function onFreeInput() {}
@@ -1596,6 +1599,9 @@ function resetAll(){
   document.getElementById('static-answer').innerHTML='';
   document.getElementById('ai-area').classList.add('hidden');
   document.getElementById('followup-input').value='';
+  if (typeof selectedMinistry !== 'undefined') selectedMinistry = null;
+  var bar = document.getElementById('selected-ministry-bar');
+  if (bar) bar.style.display = 'none';
   showScreen(1);
 }
 </script>
