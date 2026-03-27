@@ -395,35 +395,186 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
       </div>
 
       <!-- OR -->
-      <div class="divider-label" id="or-divider">או בחרו נושא</div>
+      <div class="divider-label" id="or-divider">או בחרו משרד</div>
 
-      <!-- רשת קטגוריות -->
-      <div class="cat-grid" id="cat-grid">
-        <div class="cat-card" onclick="selectCat('btl')">
-          <div class="cat-icon">🏦</div>
-          <div><div class="cat-label">ביטוח לאומי</div><div class="cat-desc">קצבאות, תביעות, גמלאות</div></div>
-        </div>
-        <div class="cat-card" onclick="selectCat('health')">
-          <div class="cat-icon">🏥</div>
-          <div><div class="cat-label">בריאות</div><div class="cat-desc">קופות חולים, בתי חולים</div></div>
-        </div>
-        <div class="cat-card" onclick="selectCat('id')">
-          <div class="cat-icon">🔑</div>
-          <div><div class="cat-label">הזדהות ממשלתית</div><div class="cat-desc">כניסה לשירותים ומסמכים</div></div>
-        </div>
-        <div class="cat-card" onclick="selectCat('tax')">
-          <div class="cat-icon">📄</div>
-          <div><div class="cat-label">מיסים ומסמכים</div><div class="cat-desc">מס הכנסה, אישורים</div></div>
-        </div>
-        <div class="cat-card" onclick="selectCat('transport')">
-          <div class="cat-icon">🚗</div>
-          <div><div class="cat-label">תחבורה</div><div class="cat-desc">רישיון, רכב, דרכון</div></div>
-        </div>
-        <div class="cat-card" onclick="selectCat('housing')">
-          <div class="cat-icon">🏠</div>
-          <div><div class="cat-label">מגורים ועירייה</div><div class="cat-desc">כתובת, ארנונה, עיר</div></div>
-        </div>
-      </div>
+      <!-- עץ משרדים -->
+      <div id="ministry-tree" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;scrollbar-width:thin"></div>
+
+      <div id="selected-ministry-bar" style="display:none;background:rgba(56,189,248,0.1);border:1.5px solid rgba(56,189,248,0.3);border-radius:10px;padding:8px 14px;margin-bottom:8px;font-size:13px;color:#38bdf8;align-items:center;justify-content:space-between"><span id="selected-ministry-name"></span><button onclick="clearMinistryFilter()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:12px;font-family:Heebo,sans-serif">✕</button></div>
+
+      <script>
+      var MINISTRIES = [
+        { icon:'🏥', label:'משרד הבריאות', items:[
+          { label:'שירותי משרד הבריאות', desc:'רישוי, נגישות, זכויות חולה', url:'https://www.gov.il/he/departments/ministry_of_health', id:null },
+          { label:'סל הבריאות — תרופות', desc:'בדיקת תרופות, ועדת חריגים, שב"ן', url:'https://www.gov.il/he/departments/topics/health-basket', id:'health-basket' },
+          { label:'כללית', desc:'תורים, בדיקות, מרשמים', url:'https://www.clalit.co.il', id:'health-clalit' },
+          { label:'מכבי', desc:'תורים, בדיקות, מרשמים', url:'https://www.maccabi4u.co.il', id:'health-maccabi' },
+          { label:'לאומית', desc:'תורים, בדיקות, מרשמים', url:'https://www.leumit.co.il', id:'health-leumit' },
+          { label:'מאוחדת', desc:'תורים, בדיקות, מרשמים', url:'https://www.meuhedet.co.il', id:'health-meuhedet' },
+          { label:'🏥 בתי חולים — צפון', subItems:[
+            { label:'רמב"ם — חיפה', url:'https://www.rambam.health.gov.il' },
+            { label:'זיו — צפת', url:'https://ziv.health.gov.il' },
+            { label:'פוריה — טבריה', url:'https://poria.health.gov.il' },
+            { label:'העמק — עפולה', url:'https://www.emek.health.gov.il' },
+            { label:'נהריה — גליל מערבי', url:'https://www.gmc.gov.il' }
+          ]},
+          { label:'🏥 בתי חולים — מרכז', subItems:[
+            { label:'שיבא — תל השומר', url:'https://www.sheba.co.il' },
+            { label:'איכילוב — תל אביב', url:'https://www.tasmc.org.il' },
+            { label:'בילינסון / גולדה — פתח תקווה', url:'https://www.rabin-mc.org' },
+            { label:'הדסה — ירושלים', url:'https://www.hadassah.org.il' },
+            { label:'שערי צדק — ירושלים', url:'https://www.szmc.org.il' },
+            { label:'מאיר — כפר סבא', url:'https://www.meir.org.il' },
+            { label:'לניאדו — נתניה', url:'https://www.laniado.org.il' }
+          ]},
+          { label:'🏥 בתי חולים — דרום', subItems:[
+            { label:'סורוקה — באר שבע', url:'https://www.soroka.health.gov.il' },
+            { label:'ברזילי — אשקלון', url:'https://www.barzilaimc.org.il' },
+            { label:'קפלן — רחובות', url:'https://www.kaplanmc.org.il' },
+            { label:'יוספטל — אילת', url:'https://www.yosseftal.health.gov.il' }
+          ]}
+        ]},
+        { icon:'🏦', label:'ביטוח לאומי', items:[
+          { label:'קצבת זקנה', desc:'טופס 1514, הגשה מקוונת', url:'https://www.btl.gov.il/benefits/old_age/Pages/default.aspx', id:'btl-old' },
+          { label:'קצבת סיעוד', desc:'טופס 4840, בדיקה בבית', url:'https://www.btl.gov.il/benefits/Nursing/Pages/default.aspx', id:'btl-nursing' },
+          { label:'הבטחת הכנסה', desc:'טופס 6114', url:'https://www.btl.gov.il/benefits/income_guarantee/Pages/default.aspx', id:'btl-income' },
+          { label:'נכות כללית', desc:'טופס 5130, ועדה רפואית', url:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx', id:'btl-disability' },
+          { label:'קצבת שאירים', desc:'טופס 1516, לאלמן/אלמנה', url:'https://www.btl.gov.il/benefits/survivors/Pages/default.aspx', id:'btl-caregiver' },
+          { label:'פנסיה — מסלקה פנסיונית', desc:'בדיקת כל קרנות הפנסיה', url:'https://www.gov.il/he/service/pension-clearinghouse', id:'pension-main' },
+          { label:'זכויות ניצולי שואה', desc:'תגמולים, קצבאות', url:'https://www.gov.il/he/departments/holocaust_survivors_rights_authority', id:'btl-holocaust' },
+          { label:'מיצוי זכויות לוותיק', desc:'כל ההטבות המגיעות לך', url:'https://www.gov.il/he/departments/ministry_of_social_equality', id:'rights-senior' },
+          { label:'הלוואה לוותיקים', desc:'זמינה למקבלי קצבת זקנה', url:'https://www.btl.gov.il/snifim/Pages/default.aspx', id:'btl-loan' }
+        ]},
+        { icon:'🚗', label:'משרד התחבורה', items:[
+          { label:'חידוש רישיון נהיגה', desc:'ביקור פיזי חובה — זמן תור', url:'https://rishuy.mot.gov.il/he/', id:'transport-driving' },
+          { label:'רישיון רכב — הורדה', desc:'PDF דיגיטלי, טסט, בעלות', url:'https://my.gov.il', id:'transport-license' },
+          { label:'קביעת תור לטסט', desc:'תחנות ברחבי הארץ', url:'https://www.gov.il/he/service/car-test-appointment', id:null }
+        ]},
+        { icon:'🪪', label:'משרד הפנים', items:[
+          { label:'זימון תור — רשות האוכלוסין', desc:'דרכון, ת"ז, שינוי שם, לידה', url:'https://govextra.gov.il/piba/piba-services/first-page/', id:'piba-services' },
+          { label:'דרכון ותעודת זהות', desc:'חידוש, הנפקה, ספח ת"ז', url:'https://govextra.gov.il/piba/piba-services/first-page/', id:'transport-passport' },
+          { label:'חידוש ת"ז מקוון', desc:'ללא ביקור — מאפריל 2024', url:'https://www.gov.il/he/service/application-for-biometric-passport-or-idcard', id:null },
+          { label:'שינוי כתובת מגורים', desc:'אונליין דרך my.gov.il', url:'https://my.gov.il', id:'housing-address' },
+          { label:'הזדהות — login.gov.il', desc:'הרשמה חד-פעמית לכל השירותים', url:'https://login.gov.il', id:'id-login' },
+          { label:'האזור האישי — my.gov.il', desc:'ספח ת"ז, רישיון, העברת בעלות', url:'https://my.gov.il', id:'id-mygov' },
+          { label:'ירושה וצו ירושה', desc:'הגשה מקוונת', url:'https://inheritance.justice.gov.il/', id:'inheritance' }
+        ]},
+        { icon:'🤝', label:'משרד הרווחה', items:[
+          { label:'מיצוי זכויות לוותיק', desc:'עובד סוציאלי, מוקד *8840', url:'https://www.gov.il/he/departments/ministry_of_social_equality', id:'rights-senior' },
+          { label:'תעודת נכה והטבות', desc:'תג נכה לחניה, הנחות', url:'https://my.gov.il', id:'rights-disabled' }
+        ]},
+        { icon:'📄', label:'רשות המסים', items:[
+          { label:'מס הכנסה — אישורים והחזרים', desc:'עד 6 שנים אחורה', url:'https://secapp.taxes.gov.il', id:'tax-main' },
+          { label:'תיאום מס', desc:'ליותר ממעסיק אחד', url:'https://secapp.taxes.gov.il', id:'tax-coordination' },
+          { label:'קיבוע זכויות — גמלאים', desc:'חיסכון משמעותי מגיל 60', url:'https://secapp.taxes.gov.il', id:'tax-rights' },
+          { label:'תשלומים ממשלתיים', desc:'קנסות, אגרות, רב-קו', url:'https://www.gov.il/he/pages/payments-services', id:'payments-gov' }
+        ]},
+        { icon:'⚖️', label:'משרד המשפטים', items:[
+          { label:'ירושה וצו ירושה', desc:'הגשה מקוונת, מעקב', url:'https://inheritance.justice.gov.il/', id:'inheritance' },
+          { label:'לשכת הסיוע המשפטי', desc:'ייעוץ משפטי חינם', url:'https://www.gov.il/he/departments/legal_aid', id:null },
+          { label:'מוקד רשם ירושה ארצי', desc:'פרטים ויעוץ', url:'https://www.gov.il/he/departments/topics/inheritance', id:null }
+        ]},
+        { icon:'🏠', label:'עירייה ומגורים', items:[
+          { label:'ארנונה — תשלום ופטורים', desc:'הנחה עד 90% לוותיקים', url:'https://www.gov.il/he/service/arnona-discount', id:'housing-arnona' },
+          { label:'חשמל — תשלום והנחות', desc:'הנחה עד 50% לנכים', url:'https://www.iec.co.il', id:'payments-electric' },
+          { label:'תשלום מים', desc:'פנו לתאגיד המים המקומי', url:'https://www.gov.il/he/departments/topics/water', id:null }
+        ]},
+        { icon:'💼', label:'שירותים נוספים', items:[
+          { label:'שירות התעסוקה', desc:'חיפוש עבודה, דמי אבטלה', url:'https://www.taasuka.gov.il', id:null },
+          { label:'תשלומים ממשלתיים', desc:'קנסות, אגרות, רב-קו', url:'https://www.gov.il/he/pages/payments-services', id:'payments-gov' },
+          { label:'כל-זכות', desc:'מדריך זכויות אזרחים', url:'https://www.kolzchut.org.il', id:null },
+          { label:'מנוע הזכויות הלאומי', desc:'בדיקת זכויות אישיות', url:'https://www.gov.il/he/service/rights-engine', id:null }
+        ]}
+      ];
+
+      var openMinistry = null;
+      var openSubGroup = null;
+      var selectedMinistry = null;
+
+      function clearMinistryFilter() {
+        selectedMinistry = null;
+        var bar = document.getElementById('selected-ministry-bar');
+        if (bar) bar.style.display = 'none';
+      }
+
+      function buildTree() {
+        var tree = document.getElementById('ministry-tree');
+        if (!tree) return;
+        tree.innerHTML = '';
+
+        MINISTRIES.forEach(function(min, idx) {
+          var isOpen = openMinistry === idx;
+
+          // כותרת משרד
+          var header = document.createElement('div');
+          header.style.cssText = 'background:var(--surface);border:2px solid ' + (isOpen ? 'var(--accent)' : 'var(--border)') + ';border-radius:' + (isOpen ? '14px 14px 0 0' : '14px') + ';padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .15s;flex-shrink:0';
+          header.innerHTML = '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">' + min.icon + '</span><span style="font-size:14px;font-weight:700">' + min.label + '</span></div><span style="color:var(--accent);font-size:13px">' + (isOpen ? '▲' : '▼') + '</span>';
+          header.onclick = function() { openMinistry = isOpen ? null : idx; openSubGroup = null; buildTree(); };
+          tree.appendChild(header);
+
+          if (isOpen) {
+            var list = document.createElement('div');
+            list.style.cssText = 'background:var(--surface2);border:1.5px solid var(--accent);border-top:none;border-radius:0 0 14px 14px;overflow:hidden;flex-shrink:0';
+
+            min.items.forEach(function(item, i) {
+              var hasSubItems = item.subItems && item.subItems.length;
+              var isSubOpen = openSubGroup === idx + '-' + i;
+
+              // שורת פריט
+              var row = document.createElement('div');
+              row.style.cssText = 'border-top:' + (i > 0 ? '1px solid var(--border)' : 'none');
+
+              var rowInner = document.createElement('div');
+              rowInner.style.cssText = 'padding:11px 16px 11px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s';
+              rowInner.innerHTML = '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + item.label + '</div>' + (item.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.desc + '</div>' : '') + '</div>' + (hasSubItems ? '<span style="color:var(--accent);font-size:11px;margin-right:4px">' + (isSubOpen ? '▲' : '▼') + '</span>' : (item.url ? '<span style="color:var(--accent);font-size:11px">↗</span>' : ''));
+              rowInner.onmouseover = function(){ this.style.background='rgba(56,189,248,0.06)'; };
+              rowInner.onmouseout = function(){ this.style.background='none'; };
+
+              if (hasSubItems) {
+                rowInner.onclick = function(e) { e.stopPropagation(); openSubGroup = isSubOpen ? null : (idx + '-' + i); buildTree(); };
+              } else {
+                rowInner.onclick = (function(m, it) { return function(e) {
+                  e.stopPropagation();
+                  selectedMinistry = m;
+                  var bar = document.getElementById('selected-ministry-bar');
+                  var nameEl = document.getElementById('selected-ministry-name');
+                  if (bar && nameEl) { nameEl.textContent = m.icon + ' ' + m.label; bar.style.display = 'flex'; }
+                  if (it.id) { openItem(it.id); }
+                  else if (it.url) { window.open(it.url, '_blank'); }
+                }; })(min, item);
+              }
+              row.appendChild(rowInner);
+
+              // תת-פריטים (בתי חולים)
+              if (hasSubItems && isSubOpen) {
+                var subList = document.createElement('div');
+                subList.style.cssText = 'background:rgba(56,189,248,0.04);border-top:1px solid var(--border)';
+                item.subItems.forEach(function(sub, si) {
+                  var subRow = document.createElement('a');
+                  subRow.href = sub.url;
+                  subRow.target = '_blank';
+                  subRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 16px 10px 28px;font-size:12px;color:#93c5fd;text-decoration:none;border-top:' + (si > 0 ? '1px solid rgba(51,65,85,0.5)' : 'none') + ';transition:background .1s';
+                  subRow.innerHTML = '<span>' + sub.label + '</span><span style="font-size:10px;opacity:0.7">↗</span>';
+                  subRow.onmouseover = function(){ this.style.background='rgba(56,189,248,0.08)'; };
+                  subRow.onmouseout = function(){ this.style.background='none'; };
+                  subList.appendChild(subRow);
+                });
+                row.appendChild(subList);
+              }
+
+              list.appendChild(row);
+            });
+            tree.appendChild(list);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', buildTree);
+      } else {
+        buildTree();
+      }
+      </script>
     </div>
 
     <!-- ══ מסך 2: תת-קטגוריה ══ -->
@@ -1070,7 +1221,10 @@ function searchNow() {
   document.getElementById('s1-ai-typing').style.display = 'flex';
   document.getElementById('s1-ai-content').innerHTML = '';
 
-  var fullSystem = 'אתה סייע לשירותים ממשלתיים ישראליים. אתרים: gov.il, my.gov.il, login.gov.il, btl.gov.il, secapp.taxes.gov.il, clalit.co.il, maccabi4u.co.il, leumit.co.il, meuhedet.co.il, rishuy.mot.gov.il, govextra.gov.il/piba/piba-services/first-page, inheritance.justice.gov.il. ענה: **כותרת** 1.שלב 2.שלב 3.שלב 🔐הזדהות 💡טיפ. שפה פשוטה לוותיק.';
+  var ministryContext = selectedMinistry
+    ? 'המשתמש בחר את ' + selectedMinistry.label + '. ענה בהקשר של ' + selectedMinistry.label + ' בלבד. '
+    : '';
+  var fullSystem = ministryContext + 'אתה סייע מומחה לשירותים ממשלתיים ישראליים לאזרחים ותיקים. ענה בעברית פשוטה. אתרים: gov.il, my.gov.il, login.gov.il, btl.gov.il, secapp.taxes.gov.il, clalit.co.il, maccabi4u.co.il, leumit.co.il, meuhedet.co.il, rishuy.mot.gov.il, govextra.gov.il/piba/piba-services/first-page, inheritance.justice.gov.il. פורמט: **כותרת** 1.שלב ראשון 2.שלב שני 3.שלב שלישי 🔐הזדהות:[נדרש/לא נדרש] 💡טיפ. כלול קישורים עם https:// כשרלוונטי.';
 
   fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem))
   .then(function(r){ return r.json(); })
@@ -1117,7 +1271,7 @@ function renderS1AI(text, q) {
 
   if (tip) html += '<div class="ai-tip">' + renderLinks(tip) + '</div>';
 
-  // כפתורי פעולה
+  // כפתורי פעולה בלבד — ללא כפתורי קטגוריות
   var copyText = text.replace(/\*\*/g,'').replace(/🔐[^\n]*/g,'').replace(/💡/g,'').trim();
   var safeCopy = copyText.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/'/g,"\\'");
   html += '<div style="display:flex;gap:8px;margin-top:14px">';
@@ -1400,13 +1554,13 @@ function renderAI(text) {
 function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function renderLinks(s) {
-  // קודם escape, אחר כך המר קישורים
   var escaped = escH(s);
-  // https://...
-  escaped = escaped.replace(/(https?:\/\/[^\s&<]+)/g,
+  // המר כתובות — פעם אחת בלבד, מהארוך לקצר
+  // כתובות מלאות עם https://
+  escaped = escaped.replace(/(https?:\/\/[^\s&<"]+)/g,
     '<a href="$1" target="_blank" style="color:#38bdf8;text-decoration:underline">$1 ↗</a>');
-  // domain.gov.il בלי https
-  escaped = escaped.replace(/\b((?:[\w-]+\.)+(?:gov|co)\.il(?:\/[^\s<]*)?)/g, function(match) {
+  // domain.gov.il או domain.co.il בלי https — רק אם לא כבר בתוך href
+  escaped = escaped.replace(/(?<!href="|">)((?:[\w-]+\.)+(?:gov|co)\.il(?:\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?)/g, function(match) {
     if (match.indexOf('://') >= 0) return match;
     return '<a href="https://' + match + '" target="_blank" style="color:#38bdf8;text-decoration:underline">' + match + ' ↗</a>';
   });
