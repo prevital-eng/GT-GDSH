@@ -542,7 +542,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
 // ════════════════════════════════
 //  PROXY (Apps Script)
 // ════════════════════════════════
-var PROXY = 'https://script.google.com/macros/s/AKfycbzYo9ugKo7uVIm7edq3AQgS10TMTMy-KMR1AfaR3ucK_U9ph6Uf-lN1gHaJIORInNM/exec';
+var PROXY = 'https://script.google.com/macros/s/AKfycby51e4qEviFzuxECbSPQt60vLamZFwKRD8-vP5r4-Lu0bBB3DjM3ITRhcfQ5JY_1Fs/exec';
 
 // ════════════════════════════════
 //  מאגר שירותים
@@ -1104,10 +1104,10 @@ function renderS1AI(text, q) {
   if (title) html += '<div style="font-size:16px;font-weight:700;margin-bottom:14px;color:#f1f5f9">' + escH(title) + '</div>';
 
   steps.forEach(function(s, i){
-    html += '<div class="ai-step"><div class="ai-step-num">' + (i+1) + '</div><div class="ai-step-text">' + escH(s) + '</div></div>';
+    html += '<div class="ai-step"><div class="ai-step-num">' + (i+1) + '</div><div class="ai-step-text">' + renderLinks(s) + '</div></div>';
   });
 
-  if (!title && !steps.length) html += '<div class="ai-content">' + escH(text) + '</div>';
+  if (!title && !steps.length) html += '<div class="ai-content">' + renderLinks(text) + '</div>';
 
   // הזדהות
   if (auth) {
@@ -1115,7 +1115,7 @@ function renderS1AI(text, q) {
     html += '<div style="background:' + (noAuth ? 'rgba(52,211,153,0.1)' : 'rgba(251,191,36,0.1)') + ';border-right:3px solid ' + (noAuth ? '#34d399' : '#fbbf24') + ';padding:10px 12px;border-radius:8px;font-size:13px;color:' + (noAuth ? '#34d399' : '#fde68a') + ';margin-top:12px">' + escH(auth) + '</div>';
   }
 
-  if (tip) html += '<div class="ai-tip">' + escH(tip) + '</div>';
+  if (tip) html += '<div class="ai-tip">' + renderLinks(tip) + '</div>';
 
   // תמיד הצג כפתורי קטגוריות לפרטים נוספים
   html += '<div style="font-size:12px;color:#64748b;margin:16px 0 8px;font-weight:700">📋 לפרטים נוספים — בחרו נושא:</div>';
@@ -1407,6 +1407,20 @@ function renderAI(text) {
 }
 
 function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderLinks(s) {
+  // קודם escape, אחר כך המר קישורים
+  var escaped = escH(s);
+  // https://...
+  escaped = escaped.replace(/(https?:\/\/[^\s&<]+)/g,
+    '<a href="$1" target="_blank" style="color:#38bdf8;text-decoration:underline">$1 ↗</a>');
+  // domain.gov.il בלי https
+  escaped = escaped.replace(/\b((?:[\w-]+\.)+(?:gov|co)\.il(?:\/[^\s<]*)?)/g, function(match) {
+    if (match.indexOf('://') >= 0) return match;
+    return '<a href="https://' + match + '" target="_blank" style="color:#38bdf8;text-decoration:underline">' + match + ' ↗</a>';
+  });
+  return escaped;
+}
 
 // ════════════════════════════════
 //  WA
