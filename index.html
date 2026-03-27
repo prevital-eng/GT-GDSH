@@ -1106,7 +1106,11 @@ function searchNow() {
     '- אם נדרשת פנייה פיזית — ציין היכן ומה להביא.'
   ].join('\n');
 
-  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem))
+  fetch(PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: q, system: fullSystem })
+  })
   .then(function(r){ return r.json(); })
   .then(function(data){
     document.getElementById('s1-ai-typing').style.display = 'none';
@@ -1377,7 +1381,11 @@ function callAIWithHistory(question, systemBase) {
 
   var system = systemBase + '\n\nענה בעברית, בצורה פשוטה לאזרח ותיק. כשמבקשים קישור — חפש עם web_search באתרי gov.il הרשמיים ותחזיר את הקישור המדויק והעדכני. אל תחזור על מה שכבר נאמר בשיח.';
 
-  fetch(PROXY + '?question=' + encodeURIComponent(question) + '&system=' + encodeURIComponent(system))
+  fetch(PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: question, system: system })
+  })
   .then(function(r){ return r.json(); })
   .then(function(data){
     document.getElementById('ai-typing').classList.add('hidden');
@@ -1401,7 +1409,11 @@ function callAI(question, systemBase) {
 
   var system = systemBase + '\n\nענה בעברית. הסבר בצורה פשוטה לאזרח ותיק. כתוב:\n**כותרת קצרה**\n1. שלב ראשון\n2. שלב שני\n3. שלב שלישי\n💡 טיפ קצר\nאם לא יודע — הפנה לטלפון הרלוונטי.';
 
-  fetch(PROXY+'?question='+encodeURIComponent(question)+'&system='+encodeURIComponent(system))
+  fetch(PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: question, system: system })
+  })
   .then(function(r){return r.json();})
   .then(function(data){
     document.getElementById('ai-typing').classList.add('hidden');
