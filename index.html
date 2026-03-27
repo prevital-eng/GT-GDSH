@@ -1119,10 +1119,10 @@ function searchNow() {
       : 'מצטער, לא הצלחתי לקבל תשובה. נסו שוב.';
     renderS1AI(text, q);
   })
-  .catch(function(){
+  .catch(function(err){
     document.getElementById('s1-ai-typing').style.display = 'none';
     document.getElementById('s1-ai-content').innerHTML =
-      '<div style="color:#fca5a5;font-size:14px">⚠️ בעיית חיבור. בדקו אינטרנט ונסו שוב.</div>';
+      '<div style="color:#fca5a5;font-size:13px">⚠️ שגיאה: ' + (err ? err.toString() : 'unknown') + '</div>';
   });
 }
 
