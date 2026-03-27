@@ -445,7 +445,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
       <div class="followup-box" id="followup-area">
         <div class="search-go" onclick="doFollowup()">🤖</div>
         <input type="text" id="followup-input"
-          placeholder="שאלו שאלה נוספת..."
+          placeholder="שאלו שאלה נוספת... (לדוגמה: תנו לי קישור ישיר)"
           onkeydown="if(event.key==='Enter')doFollowup()">
       </div>
 
@@ -542,7 +542,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
 // ════════════════════════════════
 //  PROXY (Apps Script)
 // ════════════════════════════════
-var PROXY = 'https://script.google.com/macros/s/AKfycbxBdvVl8XsN24gU3qxY3iMzEr3SMHui0oicYByT6Z5H0r5y4mdf0_vm3RsOvOM0tw/exec';
+var PROXY = 'https://script.google.com/macros/s/AKfycbzYo9ugKo7uVIm7edq3AQgS10TMTMy-KMR1AfaR3ucK_U9ph6Uf-lN1gHaJIORInNM/exec';
 
 // ════════════════════════════════
 //  מאגר שירותים
@@ -1286,7 +1286,7 @@ function openItem(id) {
   pendingWAText = encodeURIComponent(plainText);
   var safe = plainText.replace(/\\/g,'\\\\').replace(/`/g,'\\`');
   html += '<button style="width:100%;margin-top:14px;padding:12px;border-radius:14px;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;" onclick="navigator.clipboard.writeText(`'+safe+'`).then(function(){this.innerText=\'✓ הועתק!\';var _=this;setTimeout(function(){_.innerText=\'📋 העתק מדריך\'},2000)}.bind(this))">📋 העתק מדריך</button>';
-  html += '<button style="width:100%;margin-top:8px;padding:12px;border-radius:14px;background:#1a3a28;border:1.5px solid var(--wa);color:var(--wa);font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;" onclick="openPhoneModal()">📲 שלח בוואטסאפ</button>';
+
 
   html += '<hr style="border:none;border-top:1px solid var(--border);margin:18px 0">';
 
@@ -1297,35 +1297,81 @@ function openItem(id) {
 }
 
 // ════════════════════════════════
-//  AI — שאלה חופשית על שירות / כללית
+//  שיח המשכי + AI
 // ════════════════════════════════
-function doFollowup() {
-  var q = document.getElementById('followup-input').value.trim();
-  if (!q) return;
-  callAI(q, state.item ? state.item.ai : 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית.');
-  document.getElementById('followup-input').value = '';
-}
+var chatHistory = []; // היסטוריית שיח
 
 function callAIFree(q) {
   state.item = null;
   state.catLabel = '';
-  // עוברים למסך 3 קודם
   document.getElementById('s3-back-btn').onclick = function(){ goBack(1); };
   document.getElementById('static-answer').innerHTML = '';
   showScreen(3);
-  // עכשיו מגדירים את ה-AI area
+  document.getElementById('ai-area').classList.remove('hidden');
+  document.getElementById('ai-typing').classList.remove('hidden');
+  document.getElementById('ai-content').innerHTML = '';
+  chatHistory = [];
+  callAI(q, 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. כלול שלבים ברורים וקישורים רלוונטיים.');
+}
+
+function doFollowup() {
+  var q = document.getElementById('followup-input').value.trim();
+  if (!q) return;
+  document.getElementById('followup-input').value = '';
+
+  // הצג הודעת משתמש בשיח
+  appendChatMsg(q, 'user');
+
+  // בנה הקשר מהפריט הנוכחי
+  var systemBase = state.item
+    ? state.item.ai
+    : 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. אם מבקשים קישור — תן את הקישור המדויק.';
+
+  callAIWithHistory(q, systemBase);
+}
+
+function appendChatMsg(text, role) {
+  var content = document.getElementById('ai-content');
+  var div = document.createElement('div');
+  div.style.cssText = role === 'user'
+    ? 'background:#1e3a5f;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px;color:#93c5fd;text-align:left;direction:ltr'
+    : 'font-size:14px;color:#cbd5e1;line-height:1.7;margin:8px 0;padding-bottom:8px;border-bottom:1px solid #1e293b';
+  div.textContent = (role === 'user' ? '👤 ' : '🤖 ') + text;
+  content.appendChild(div);
+  content.parentElement.scrollTop = content.parentElement.scrollHeight;
+}
+
+function callAIWithHistory(question, systemBase) {
   var aiArea = document.getElementById('ai-area');
   aiArea.classList.remove('hidden');
   document.getElementById('ai-typing').classList.remove('hidden');
-  document.getElementById('ai-content').innerHTML = '';
-  callAI(q, 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. כלול שלבים ברורים וקישורים רלוונטיים.');
+
+  // הוסף לשיח
+  chatHistory.push({ role: 'user', content: question });
+
+  var system = systemBase + '\n\nענה בעברית, בצורה פשוטה לאזרח ותיק. כלול קישורים ישירים כשמבקשים. אל תחזור על מה שכבר נאמר בשיח.';
+
+  fetch(PROXY + '?question=' + encodeURIComponent(question) + '&system=' + encodeURIComponent(system))
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    document.getElementById('ai-typing').classList.add('hidden');
+    var text = (data.content && data.content[0] && data.content[0].text)
+      ? data.content[0].text : '⚠️ לא הצלחתי לקבל תשובה. נסו שוב.';
+    chatHistory.push({ role: 'assistant', content: text });
+    appendChatMsg(text, 'ai');
+  })
+  .catch(function(){
+    document.getElementById('ai-typing').classList.add('hidden');
+    appendChatMsg('⚠️ בעיית חיבור. בדקו אינטרנט ונסו שוב.', 'ai');
+  });
 }
 
 function callAI(question, systemBase) {
   var aiArea = document.getElementById('ai-area');
   aiArea.classList.remove('hidden');
   document.getElementById('ai-typing').classList.remove('hidden');
-  document.getElementById('ai-content').innerHTML='';
+  document.getElementById('ai-content').innerHTML = '';
+  chatHistory = []; // איפוס שיח בשאלה חדשה
 
   var system = systemBase + '\n\nענה בעברית. הסבר בצורה פשוטה לאזרח ותיק. כתוב:\n**כותרת קצרה**\n1. שלב ראשון\n2. שלב שני\n3. שלב שלישי\n💡 טיפ קצר\nאם לא יודע — הפנה לטלפון הרלוונטי.';
 
@@ -1336,6 +1382,7 @@ function callAI(question, systemBase) {
     var text='';
     if(data.content&&data.content[0]&&data.content[0].text) text=data.content[0].text;
     else if(data.error) text='⚠️ שגיאה: '+(data.error.message||'נסו שוב');
+    chatHistory.push({ role: 'assistant', content: text });
     renderAI(text);
   })
   .catch(function(){
