@@ -795,7 +795,7 @@ var DB = [
    canDo:['זימון תור אונליין','חידוש ת"ז מקוון (מאפריל 2024)','הורדת ספח ת"ז — my.gov.il'],
    cantDo:['הנפקת דרכון חדש — ביקור חובה','ת"ז אבודה — ביקור בסניף'],
    links:[{t:'זימון תור — רשות האוכלוסין',u:'https://govextra.gov.il/piba/piba-services/first-page/',p:true},{t:'חידוש ת"ז מקוון',u:'https://www.gov.il/he/service/application-for-biometric-passport-or-idcard'},{t:'my.gov.il — ספח ת"ז',u:'https://my.gov.il'}],
-   ai:'אתה סייע בנושא דרכון ות"ז בישראל. זימון תור: govextra.gov.il/piba/piba-services/first-page. חידוש ת"ז מקוון מאפריל 2024. ספח ת"ז: my.gov.il. מוקד: *3450. ענה בעברית פשוטה.'
+   ai:'אתה סייע בנושא דרכון ות"ז בישראל. חידוש ת"ז מקוון (ללא ביקור): gov.il/he/service/application-for-biometric-passport-or-idcard. חידוש/הנפקת דרכון — ביקור בסניף חובה, זמן תור: govisit.gov.il. ספח ת"ז: my.gov.il. מוקד: *3450. ענה בעברית פשוטה.'
   },
 
   // ── מגורים ──
@@ -1077,7 +1077,8 @@ function searchNow() {
     '- gov.il — שער כל השירותים הממשלתיים. חיפוש שירות לפי נושא.',
     '- my.gov.il — האזור האישי: ספח ת"ז, רישיון רכב, שינוי כתובת, העברת בעלות רכב, חידוש רישיון נהיגה, תג נכה, מעקב אחר בקשת דרכון, סטטוס צו ירושה.',
     '- login.gov.il — הזדהות ממשלתית: ת"ז + סיסמה + קוד SMS. הרשמה חד-פעמית.',
-    '- govextra.gov.il/piba/piba-services/first-page — רשות האוכלוסין וההגירה: זימון תור לדרכון, ת"ז, שינוי שם, רישום לידה, שינוי מצב אישי. מוקד: *3450.',
+    '- govextra.gov.il/piba/piba-services/first-page — רשות האוכלוסין: זימון תור לסניף לדרכון חדש, ת"ז חדשה, שינוי שם. מוקד: *3450.',
+    '- gov.il/he/service/application-for-biometric-passport-or-idcard — חידוש ת"ז מקוון (ללא ביקור, מאפריל 2024). חידוש דרכון: דורש ביקור בסניף — זמן ל-govisit.gov.il.',
     '- btl.gov.il — ביטוח לאומי: קצבת זקנה (טופס 1514), סיעוד (4840), נכות (5130), הבטחת הכנסה (6114), שאירים (1516). לוח תשלומים, בדיקת סטטוס, עדכון בנק.',
     '- secapp.taxes.gov.il — מס הכנסה: אישורי הכנסה, החזר מס (עד 6 שנים אחורה), תיאום מס, קיבוע זכויות (מגיל 60), הגשת דוח שנתי.',
     '- clalit.co.il / maccabi4u.co.il / leumit.co.il / meuhedet.co.il — קופות חולים: תורים, בדיקות, מרשמים, שיחת וידאו.',
@@ -1097,7 +1098,12 @@ function searchNow() {
     '🔐 הזדהות: [אם נדרשת: "נדרש חשבון ב-login.gov.il". אם לא: "אין צורך בהזדהות"]',
     '💡 טיפ קצר ומעשי',
     '',
-    'כללים: אל תכתוב קישורים — הם יוצגו אוטומטית. שפה פשוטה מאוד. אם נדרשת פנייה פיזית — ציין היכן ומה להביא.'
+    'כללים:',
+    '- כשמבקשים קישור — השתמש ב-web_search כדי למצוא את הקישור הרשמי והעדכני ביותר.',
+    '- חפש תמיד באתרי gov.il הרשמיים בלבד.',
+    '- שפה פשוטה מאוד לאזרח ותיק.',
+    '- אם נדרשת פנייה פיזית — ציין היכן ומה להביא.',
+    '- אם לא מצאת קישור מדויק — כתוב את שם האתר הראשי בלבד (לדוגמה: btl.gov.il).'
   ].join('\n');
 
   fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem))
@@ -1315,10 +1321,21 @@ function doFollowup() {
 function appendChatMsg(text, role) {
   var content = document.getElementById('ai-content');
   var div = document.createElement('div');
-  div.style.cssText = role === 'user'
-    ? 'background:#1e3a5f;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px;color:#93c5fd;text-align:left;direction:ltr'
-    : 'font-size:14px;color:#cbd5e1;line-height:1.7;margin:8px 0;padding-bottom:8px;border-bottom:1px solid #1e293b';
-  div.textContent = (role === 'user' ? '👤 ' : '🤖 ') + text;
+
+  if (role === 'user') {
+    div.style.cssText = 'background:#1e3a5f;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px;color:#93c5fd;text-align:left;direction:ltr';
+    div.textContent = '👤 ' + text;
+  } else {
+    div.style.cssText = 'font-size:14px;color:#cbd5e1;line-height:1.8;margin:8px 0;padding-bottom:8px;border-bottom:1px solid #1e293b';
+    // המר Markdown: **bold**, [text](url), https://...
+    var html = text
+      .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#f1f5f9">$1</strong>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" style="color:#38bdf8;text-decoration:underline">$1 ↗</a>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:#38bdf8;text-decoration:underline">$1 ↗</a>')
+      .replace(/\n/g, '<br>');
+    div.innerHTML = '🤖 ' + html;
+  }
+
   content.appendChild(div);
   content.parentElement.scrollTop = content.parentElement.scrollHeight;
 }
@@ -1331,7 +1348,7 @@ function callAIWithHistory(question, systemBase) {
   // הוסף לשיח
   chatHistory.push({ role: 'user', content: question });
 
-  var system = systemBase + '\n\nענה בעברית, בצורה פשוטה לאזרח ותיק. כלול קישורים ישירים כשמבקשים. אל תחזור על מה שכבר נאמר בשיח.';
+  var system = systemBase + '\n\nענה בעברית, בצורה פשוטה לאזרח ותיק. כשמבקשים קישור — חפש עם web_search באתרי gov.il הרשמיים ותחזיר את הקישור המדויק והעדכני. אל תחזור על מה שכבר נאמר בשיח.';
 
   fetch(PROXY + '?question=' + encodeURIComponent(question) + '&system=' + encodeURIComponent(system))
   .then(function(r){ return r.json(); })
