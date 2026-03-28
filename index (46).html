@@ -1,0 +1,1663 @@
+<!--
+================================================================
+  GimlaTech — מדריך שירותים ממשלתיים דיגיטליים
+  © 2026 רויטל פלד / Revital Peled. All Rights Reserved.
+
+  נבנה בסיוע Claude AI | 2026
+================================================================
+-->
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GimlaTech — GT-GDSH</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #273549;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --success: #34d399;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --border: #334155;
+  --wa: #25d366;
+  --gov: #3b82f6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ══ DESKTOP ══ */
+.page-wrap { display: flex; min-height: 100vh; }
+.sidebar { display: none; }
+.app {
+  width: 100%; max-width: 520px; min-height: 100vh;
+  display: flex; flex-direction: column; position: relative;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  body { background: #070f1d; }
+  .page-wrap { align-items: stretch; justify-content: center; gap: 0; }
+  .sidebar {
+    display: flex; flex-direction: column; justify-content: center;
+    width: 340px; flex-shrink: 0;
+    padding: 48px 40px;
+    background: linear-gradient(160deg, #0f1e35 0%, #0a1628 100%);
+    border-left: 1px solid #1e3a5f;
+  }
+  .sidebar-logo { font-size: 32px; font-weight: 900; margin-bottom: 8px; }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-tag {
+    display: inline-block; background: rgba(56,189,248,0.12);
+    border: 1px solid rgba(56,189,248,0.3); color: var(--accent);
+    font-size: 11px; font-weight: 700; padding: 4px 12px;
+    border-radius: 20px; margin-bottom: 28px;
+  }
+  .sidebar-desc { font-size: 15px; color: #94a3b8; line-height: 1.8; margin-bottom: 32px; }
+  .sidebar-steps { display: flex; flex-direction: column; gap: 14px; }
+  .sidebar-step { display: flex; align-items: center; gap: 12px; }
+  .sidebar-step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(56,189,248,0.15); border: 1.5px solid rgba(56,189,248,0.4);
+    color: var(--accent); font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sidebar-step-text { font-size: 13px; color: #64748b; }
+  .app {
+    max-width: 480px; flex-shrink: 0;
+    border-right: 1px solid #1e293b;
+    border-left: 1px solid #1e293b;
+    background: var(--bg);
+  }
+  .modal-box { border-radius: 16px; margin-bottom: 40px; }
+  .modal-overlay { align-items: center; }
+}
+
+/* ══ HEADER ══ */
+.header {
+  padding: 20px 20px 16px;
+  background: linear-gradient(180deg, #0f172a 0%, transparent 100%);
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(12px);
+}
+.logo-row { display: flex; align-items: center; gap: 10px; }
+.logo-icon { font-size: 26px; }
+.logo-text { font-size: 19px; font-weight: 900; letter-spacing: -0.5px; }
+.logo-text span { color: var(--accent); }
+.logo-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+.breadcrumb { display: flex; align-items: center; gap: 6px; margin-top: 10px; min-height: 22px; flex-wrap: wrap; }
+.crumb { font-size: 12px; color: var(--muted); }
+.crumb.active { color: var(--accent); font-weight: 700; }
+.crumb-sep { color: var(--border); font-size: 12px; }
+
+/* ══ BODY ══ */
+.body { flex: 1; padding: 4px 18px 90px; overflow-y: auto; }
+.screen { display: none; animation: fadeUp 0.25s ease; }
+.screen.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.screen-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+.screen-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+/* ══ SCREEN 1 — חיפוש חופשי + בחירת נושא ══ */
+.free-search-box {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 14px 4px 8px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.free-search-box:focus-within { border-color: var(--accent); }
+.free-search-box input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 14px; font-family: 'Heebo', sans-serif;
+  color: var(--text); padding: 10px 0;
+  direction: rtl; min-width: 0;
+}
+.free-search-box input::placeholder { color: var(--muted); }
+.search-go {
+  background: var(--accent); border: none; border-radius: 10px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+  transition: background 0.15s; font-family: 'Heebo', sans-serif;
+  padding: 0;
+}
+.search-go:hover { background: #7dd3fc; }
+.search-go:disabled { background: var(--border); cursor: default; }
+
+.divider-label {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; color: var(--muted); font-size: 12px; font-weight: 700;
+}
+.divider-label::before, .divider-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* קטגוריות ראשיות */
+.cat-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 6px;
+}
+.cat-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 16px; padding: 16px 14px;
+  cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; gap: 12px;
+}
+.cat-card:hover, .cat-card.sel {
+  border-color: var(--accent); background: var(--surface2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56,189,248,0.12);
+}
+.cat-card .cat-icon { font-size: 26px; flex-shrink: 0; }
+.cat-card .cat-label { font-size: 14px; font-weight: 700; }
+.cat-card .cat-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* תוצאות חיפוש חופשי */
+.free-results { margin-bottom: 14px; }
+.results-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 700; }
+.result-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 8px; cursor: pointer;
+  transition: all 0.15s; text-align: right;
+}
+.result-card:hover { border-color: var(--accent2); background: var(--surface2); }
+.result-card .r-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.result-card .r-meta { font-size: 12px; color: var(--muted); }
+.result-card mark { background: rgba(56,189,248,0.25); color: var(--accent); border-radius: 3px; padding: 0 2px; font-style: normal; }
+
+/* ══ SCREEN 2 — תת-קטגוריות ══ */
+.sub-list { display: flex; flex-direction: column; gap: 9px; }
+.sub-btn {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 14px; padding: 15px 18px;
+  cursor: pointer; display: flex; align-items: center; gap: 14px;
+  transition: all 0.15s; color: var(--text); width: 100%;
+  text-align: right; font-family: 'Heebo', sans-serif;
+}
+.sub-btn:hover, .sub-btn.sel {
+  border-color: var(--accent2); background: var(--surface2);
+  box-shadow: 0 4px 16px rgba(129,140,248,0.12);
+}
+.sub-btn .sub-icon { font-size: 24px; flex-shrink: 0; }
+.sub-btn .sub-label { font-size: 15px; font-weight: 700; }
+.sub-btn .sub-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ══ SCREEN 3 — תשובה ══ */
+.ai-box {
+  background: linear-gradient(135deg, #0c2340 0%, #1a1040 100%);
+  border: 1.5px solid rgba(129,140,248,0.4);
+  border-radius: 16px; padding: 18px;
+  margin-bottom: 14px; position: relative; overflow: hidden;
+}
+.ai-box::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(129,140,248,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.ai-badge { background: var(--accent2); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.ai-typing { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.dots span { display: inline-block; width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: bounce 1.2s infinite; margin: 0 2px; }
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+/* שאלה חופשית במסך תשובה */
+.followup-box {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 14px; display: flex; align-items: center; gap: 10px;
+  padding: 4px 14px 4px 8px; margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.followup-box:focus-within { border-color: var(--accent); }
+.followup-box input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 14px; font-family: 'Heebo', sans-serif;
+  color: var(--text); padding: 10px 0; direction: rtl;
+}
+.followup-box input::placeholder { color: var(--muted); }
+
+.ai-step { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.ai-step-num { background: var(--accent2); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.ai-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.65; }
+.ai-tip { background: rgba(251,191,36,0.1); border-right: 3px solid #fbbf24; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #fde68a; margin-top: 12px; }
+.ai-content { font-size: 14px; line-height: 1.8; color: #cbd5e1; white-space: pre-wrap; }
+
+.can-box {
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+  border-right: 3px solid;
+}
+.can-box.yes { background: rgba(52,211,153,0.08); border-color: var(--success); }
+.can-box.no  { background: rgba(248,113,113,0.08); border-color: #f87171; }
+.can-box-title { font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.can-box.yes .can-box-title { color: var(--success); }
+.can-box.no  .can-box-title { color: #f87171; }
+.can-box ul { padding-right: 16px; }
+.can-box li { font-size: 13px; color: var(--muted); margin-bottom: 4px; line-height: 1.5; }
+
+.link-btn-row { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
+.gov-link {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--text); text-decoration: none;
+  padding: 11px 14px; border-radius: 12px;
+  font-size: 13px; font-weight: 700;
+  transition: all 0.15s;
+}
+.gov-link:hover { border-color: var(--gov); color: #93c5fd; }
+.gov-link.primary { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); color: #93c5fd; }
+
+.db-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--success); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
+
+/* כפתורים */
+.btn-back {
+  background: none; border: none; color: var(--accent);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  padding: 0; margin-bottom: 18px;
+  font-family: 'Heebo', sans-serif;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-back:hover { color: #7dd3fc; }
+.btn-reset {
+  width: 100%; padding: 13px; border-radius: 14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--muted); font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: 'Heebo', sans-serif;
+  transition: all 0.15s; margin-top: 8px;
+}
+.btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ══ WA BAR ══ */
+.wa-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(15,23,42,0.95); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border); padding: 10px 18px; z-index: 20;
+}
+
+/* ══ MODAL ══ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 100; backdrop-filter: blur(4px);
+}
+.modal-box {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px; width: 100%; max-width: 480px;
+  border-top: 1px solid var(--border);
+}
+.modal-title { font-size: 17px; font-weight: 900; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.modal-input {
+  width: 100%; padding: 13px 16px; border-radius: 12px;
+  border: 2px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: 18px; font-family: 'Heebo', sans-serif;
+  outline: none; letter-spacing: 1px; text-align: center; margin-bottom: 8px;
+}
+.modal-input:focus { border-color: var(--wa); }
+.modal-error { color: #fca5a5; font-size: 12px; text-align: center; min-height: 18px; margin-bottom: 10px; }
+.modal-send {
+  width: 100%; padding: 14px; border-radius: 14px;
+  background: var(--wa); border: none; color: white;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  font-family: 'Heebo', sans-serif; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.modal-send:hover { background: #20b858; }
+.modal-cancel {
+  width: 100%; padding: 11px; border-radius: 12px;
+  background: none; border: 1.5px solid var(--border);
+  color: var(--muted); font-size: 14px; cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+}
+.modal-cancel:hover { border-color: var(--accent); color: var(--accent); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ══ SIDEBAR (desktop only) ══ -->
+<div class="sidebar">
+  <div class="sidebar-logo">Gimla<span>Tech</span></div>
+  <div class="sidebar-tag">🛠️ שירותים ממשלתיים דיגיטליים</div>
+  <div class="sidebar-desc">מדריך ממוקד לניווט בשירותים הממשלתיים — צעד אחר צעד, בשפה פשוטה, עם קישורים ישירים.</div>
+  <div class="sidebar-steps">
+    <div class="sidebar-step"><div class="sidebar-step-num">1</div><div class="sidebar-step-text">כתבו שאלה חופשית — או בחרו נושא</div></div>
+    <div class="sidebar-step"><div class="sidebar-step-num">2</div><div class="sidebar-step-text">בחרו את השירות המתאים</div></div>
+    <div class="sidebar-step"><div class="sidebar-step-num">3</div><div class="sidebar-step-text">קבלו מדריך + עזרת AI</div></div>
+  </div>
+  <div style="margin-top:auto;padding-top:40px;font-size:11px;color:#334155;line-height:1.7">
+    © 2026 רויטל פלד / Revital Peled<br>
+    All Rights Reserved<br>
+    <span style="color:#1e3a5f">נבנה בסיוע Claude AI</span>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-row">
+      <span class="logo-icon">🛠️</span>
+      <div>
+        <div class="logo-text">Gimla<span>Tech</span></div>
+        <div class="logo-sub">שירותים ממשלתיים דיגיטליים</div>
+      </div>
+      <span onclick="document.getElementById('about-modal').classList.remove('hidden')"
+        style="margin-right:auto;font-size:10px;color:#1e3a5f;font-weight:500;cursor:pointer">© Revital Peled 2026</span>
+    </div>
+    <div class="breadcrumb" id="breadcrumb"></div>
+  </div>
+
+  <div class="body">
+
+    <!-- ══ מסך 1: חיפוש + בחירת נושא ══ -->
+    <div class="screen active" id="s1">
+      <div class="screen-title">במה לעזור?</div>
+      <div class="screen-sub">כתבו שאלה חופשית — או בחרו נושא</div>
+
+      <!-- חיפוש חופשי -->
+      <div class="free-search-box">
+        <button type="button" class="search-go" id="search-go-btn" onclick="searchNow()">🔍</button>
+        <input type="text" id="free-input"
+          placeholder="תארו את השאלה... (לדוגמה: איך קובעים תור לרופא)"
+          onkeydown="if(event.key==='Enter')searchNow()">
+      </div>
+
+      <!-- תוצאות מאגר -->
+      <div id="free-results"></div>
+
+      <!-- AI תשובה בתוך מסך 1 -->
+      <div id="s1-ai-area" class="hidden">
+        <div class="ai-box">
+          <div class="ai-header">
+            <span class="ai-badge">✨ בינה מלאכותית</span>
+          </div>
+          <div id="s1-ai-typing" class="ai-typing">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>מחשב תשובה...</span>
+          </div>
+          <div id="s1-ai-content"></div>
+        </div>
+      </div>
+
+      <!-- OR -->
+      <div class="divider-label" id="or-divider">או בחרו משרד</div>
+
+      <!-- עץ משרדים -->
+      <div id="ministry-tree" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;scrollbar-width:thin"></div>
+
+      <div id="selected-ministry-bar" style="display:none;background:rgba(56,189,248,0.1);border:1.5px solid rgba(56,189,248,0.3);border-radius:10px;padding:8px 14px;margin-bottom:8px;font-size:13px;color:#38bdf8;align-items:center;justify-content:space-between"><span id="selected-ministry-name"></span><button onclick="clearMinistryFilter()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:12px;font-family:Heebo,sans-serif">✕</button></div>
+
+      <script>
+      var MINISTRIES = [
+        { icon:'🏥', label:'משרד הבריאות', items:[
+          { label:'שירותי משרד הבריאות', desc:'רישוי, נגישות, זכויות חולה', url:'https://www.gov.il/he/departments/ministry_of_health', id:null },
+          { label:'זכויות גיל שלישי — בריאות', desc:'שירותים מיוחדים לוותיקים', url:'https://call.gov.il/category_page/page/third-age', id:null },
+          { label:'כל-זכות — גיל שלישי', desc:'ריכוז זכויות בגיל הזהב', url:'https://www.kolzchut.org.il/he/%D7%96%D7%99%D7%A7%D7%A0%D7%94_%D7%95%D7%94%D7%96%D7%93%D7%A7%D7%A0%D7%95%D7%AA', id:null },
+          { label:'סל הבריאות — תרופות', desc:'בדיקת תרופות, ועדת חריגים, שב"ן', url:'https://www.gov.il/he/departments/topics/health-basket', id:'health-basket' },
+          { label:'כללית', desc:'תורים, בדיקות, מרשמים', url:'https://www.clalit.co.il', id:'health-clalit' },
+          { label:'מכבי', desc:'תורים, בדיקות, מרשמים', url:'https://www.maccabi4u.co.il', id:'health-maccabi' },
+          { label:'לאומית', desc:'תורים, בדיקות, מרשמים', url:'https://www.leumit.co.il', id:'health-leumit' },
+          { label:'מאוחדת', desc:'תורים, בדיקות, מרשמים', url:'https://www.meuhedet.co.il', id:'health-meuhedet' },
+          { label:'🏥 בתי חולים — צפון', subItems:[
+            { label:'רמב"ם — חיפה', url:'https://www.rambam.health.gov.il' },
+            { label:'זיו — צפת', url:'https://ziv.health.gov.il' },
+            { label:'פוריה — טבריה', url:'https://poria.health.gov.il' },
+            { label:'העמק — עפולה', url:'https://www.emek.health.gov.il' },
+            { label:'נהריה — גליל מערבי', url:'https://www.gmc.gov.il' }
+          ]},
+          { label:'🏥 בתי חולים — מרכז', subItems:[
+            { label:'שיבא — תל השומר', url:'https://www.sheba.co.il' },
+            { label:'איכילוב — תל אביב', url:'https://www.tasmc.org.il' },
+            { label:'בילינסון / גולדה — פתח תקווה', url:'https://www.rabin-mc.org' },
+            { label:'הדסה — ירושלים', url:'https://www.hadassah.org.il' },
+            { label:'שערי צדק — ירושלים', url:'https://www.szmc.org.il' },
+            { label:'מאיר — כפר סבא', url:'https://www.meir.org.il' },
+            { label:'לניאדו — נתניה', url:'https://www.laniado.org.il' }
+          ]},
+          { label:'🏥 בתי חולים — דרום', subItems:[
+            { label:'סורוקה — באר שבע', url:'https://www.soroka.health.gov.il' },
+            { label:'ברזילי — אשקלון', url:'https://www.barzilaimc.org.il' },
+            { label:'קפלן — רחובות', url:'https://www.kaplanmc.org.il' },
+            { label:'יוספטל — אילת', url:'https://www.yosseftal.health.gov.il' }
+          ]}
+        ]},
+        { icon:'🏦', label:'ביטוח לאומי', items:[
+          { label:'קצבת זקנה', desc:'טופס 1514, הגשה מקוונת', url:'https://www.btl.gov.il/benefits/old_age/Pages/default.aspx', id:'btl-old' },
+          { label:'קצבת סיעוד', desc:'טופס 4840, בדיקה בבית', url:'https://www.btl.gov.il/benefits/Nursing/Pages/default.aspx', id:'btl-nursing' },
+          { label:'הבטחת הכנסה', desc:'טופס 6114', url:'https://www.btl.gov.il/benefits/income_guarantee/Pages/default.aspx', id:'btl-income' },
+          { label:'נכות כללית', desc:'טופס 5130, ועדה רפואית', url:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx', id:'btl-disability' },
+          { label:'קצבת שאירים', desc:'טופס 1516, לאלמן/אלמנה', url:'https://www.btl.gov.il/benefits/survivors/Pages/default.aspx', id:'btl-caregiver' },
+          { label:'פנסיה — מסלקה פנסיונית', desc:'בדיקת כל קרנות הפנסיה', url:'https://www.gov.il/he/service/pension-clearinghouse', id:'pension-main' },
+          { label:'זכויות ניצולי שואה', desc:'תגמולים, קצבאות', url:'https://www.gov.il/he/departments/holocaust_survivors_rights_authority', id:'btl-holocaust' },
+          { label:'מיצוי זכויות לוותיק', desc:'כל ההטבות המגיעות לך', url:'https://www.gov.il/he/departments/ministry_of_social_equality', id:'rights-senior' },
+          { label:'הלוואה לוותיקים', desc:'זמינה למקבלי קצבת זקנה', url:'https://www.btl.gov.il/snifim/Pages/default.aspx', id:'btl-loan' }
+        ]},
+        { icon:'🚗', label:'משרד התחבורה', items:[
+          { label:'חידוש רישיון נהיגה', desc:'ביקור פיזי חובה — זמן תור', url:'https://rishuy.mot.gov.il/he/', id:'transport-driving' },
+          { label:'רישיון רכב — הורדה', desc:'PDF דיגיטלי, טסט, בעלות', url:'https://my.gov.il', id:'transport-license' },
+          { label:'קביעת תור לטסט', desc:'תחנות ברחבי הארץ', url:'https://www.gov.il/he/service/car-test-appointment', id:null }
+        ]},
+        { icon:'🪪', label:'משרד הפנים', items:[
+          { label:'זימון תור — רשות האוכלוסין', desc:'דרכון, ת"ז, שינוי שם, לידה', url:'https://govextra.gov.il/piba/piba-services/first-page/', id:'piba-services' },
+          { label:'דרכון ותעודת זהות', desc:'חידוש, הנפקה, ספח ת"ז', url:'https://govextra.gov.il/piba/piba-services/first-page/', id:'transport-passport' },
+          { label:'חידוש ת"ז מקוון', desc:'ללא ביקור — מאפריל 2024', url:'https://www.gov.il/he/service/application-for-biometric-passport-or-idcard', id:null },
+          { label:'שינוי כתובת מגורים', desc:'אונליין דרך my.gov.il', url:'https://my.gov.il', id:'housing-address' },
+          { label:'הזדהות — login.gov.il', desc:'הרשמה חד-פעמית לכל השירותים', url:'https://login.gov.il', id:'id-login' },
+          { label:'האזור האישי — my.gov.il', desc:'ספח ת"ז, רישיון, העברת בעלות', url:'https://my.gov.il', id:'id-mygov' },
+          { label:'ירושה וצו ירושה', desc:'הגשה מקוונת', url:'https://inheritance.justice.gov.il/', id:'inheritance' }
+        ]},
+        { icon:'🤝', label:'משרד הרווחה והשוויון החברתי', items:[
+          { label:'יחידת אזרחים ותיקים — כל השירותים', desc:'דף ריכוז מלא', url:'https://www.gov.il/he/departments/units/senior-citizens-unit/govil-landing-page', id:null },
+          { label:'המשרד לשוויון חברתי', desc:'זכויות, הטבות, מיצוי זכויות', url:'https://www.gov.il/he/departments/ministry_for_social_equality/govil-landing-page', id:null },
+          { label:'מוקד לאזרחים ותיקים *8840', desc:'מענה טלפוני לכל שאלה', url:'https://www.gov.il/he/service/senior_citizen_call_center_8840', id:'rights-senior' },
+          { label:'תעודת ותיק', desc:'הנחות ושירותים לבעלי תעודה', url:'https://www.gov.il/he/service/senior_citizen_idcard', id:null },
+          { label:'מרכזי יום לוותיקים', desc:'פעילות, סיעוד, הסעות', url:'https://www.gov.il/he/pages/molsa-senior-citizens-day-centers-about', id:null },
+          { label:'מועדונים ובתים חמים', desc:'פעילות חברתית ופנאי', url:'https://www.gov.il/he/departments/topics/molsa-senior-citizens-clubs-and-warm-homes/govil-landing-page', id:null },
+          { label:'קהילה תומכת', desc:'סיוע לוותיקים בקהילה', url:'https://www.gov.il/he/pages/molsa-senior-citizens-community-support-supporting-community-about?chapterIndex=2', id:null },
+          { label:'תוכניות חברתיות וקהילתיות', desc:'מגוון תוכניות לוותיקים', url:'https://www.gov.il/he/pages/molsa-senior-citizens-community-programs-and-services-about', id:null },
+          { label:'נופשונים', desc:'מסגרות קצרות טווח לוותיקים', url:'https://www.gov.il/he/pages/molsa-senior-citizens-vacationers-about?chapterIndex=3', id:null },
+          { label:'מסגרות דיור', desc:'דיור מוגן ומסגרות שונות', url:'https://www.gov.il/he/departments/topics/molsa-senior-citizens-housing/govil-landing-page', id:null },
+          { label:'התעללות והזנחה — מידע והגנה', desc:'זיהוי ודיווח', url:'https://www.gov.il/he/pages/molsa-senior-citizens-neglect-and-abuse-about', id:null },
+          { label:'מידע בחירום לאומי', desc:'מידע לוותיקים בעת חירום', url:'https://www.gov.il/he/pages/molsa-senior-citizens-iron-swords-information', id:null },
+          { label:'תעודת נכה והטבות', desc:'תג נכה לחניה, הנחות', url:'https://my.gov.il', id:'rights-disabled' }
+        ]},
+        { icon:'📄', label:'רשות המסים', items:[
+          { label:'מס הכנסה — אישורים והחזרים', desc:'עד 6 שנים אחורה', url:'https://secapp.taxes.gov.il', id:'tax-main' },
+          { label:'תיאום מס', desc:'ליותר ממעסיק אחד', url:'https://secapp.taxes.gov.il', id:'tax-coordination' },
+          { label:'קיבוע זכויות — גמלאים', desc:'חיסכון משמעותי מגיל 60', url:'https://secapp.taxes.gov.il', id:'tax-rights' },
+          { label:'תשלומים ממשלתיים', desc:'קנסות, אגרות, רב-קו', url:'https://www.gov.il/he/pages/payments-services', id:'payments-gov' }
+        ]},
+        { icon:'⚖️', label:'משרד המשפטים', items:[
+          { label:'כל שירותי משרד המשפטים', desc:'19 שירותים דיגיטליים', url:'https://www.gov.il/he/departments/ministry_of_justice/govil-landing-page', id:null },
+          { label:'ירושה וצו ירושה', desc:'הגשה מקוונת — inheritance.justice.gov.il', url:'https://inheritance.justice.gov.il/', id:'inheritance' },
+          { label:'אפוטרופוס כללי', desc:'מינוי אפוטרופוס, ייפוי כוח מתמשך', url:'https://guardian.justice.gov.il/', id:null },
+          { label:'כשרות משפטית', desc:'ייפוי כוח מתמשך אונליין', url:'https://legal-capacity.justice.gov.il/', id:null },
+          { label:'סיוע משפטי חינם', desc:'לבעלי הכנסה נמוכה, מוקד: 073-3927788', url:'https://www.justice.gov.il/Departments/LegalAid', id:null },
+          { label:'הוצאה לפועל', desc:'מוקד: 073-2055000 או *35592', url:'https://www.gov.il/he/departments/topics/execution_office', id:null }
+        ]},
+        { icon:'🏠', label:'עירייה ומגורים', items:[
+          { label:'ארנונה — תשלום ופטורים', desc:'הנחה עד 90% לוותיקים', url:'https://www.gov.il/he/service/arnona-discount', id:'housing-arnona' },
+          { label:'חשמל — תשלום והנחות', desc:'הנחה עד 50% לנכים', url:'https://www.iec.co.il', id:'payments-electric' },
+          { label:'תשלום מים', desc:'פנו לתאגיד המים המקומי', url:'https://www.gov.il/he/departments/topics/water', id:null }
+        ]},
+        { icon:'🌍', label:'עובדים זרים בסיעוד', items:[
+          { label:'היתר להעסקת עובד זר בסיעוד', desc:'בקשה מקוונת — דרך רשות האוכלוסין', url:'https://www.gov.il/he/service/foreign-worker-permit-nursing', id:null },
+          { label:'הארכת היתר — עובד זר סיעוד', desc:'אגרה 370 ₪, מסמכים נדרשים', url:'https://www.gov.il/he/service/extension_of_residence_permit_for_foreign_workers_not_nursing', id:null },
+          { label:'מידע למעסיק — כל-זכות', desc:'זכויות, חובות, שכר, פיטורין', url:'https://www.kolzchut.org.il/he/%D7%A7%D7%91%D7%9C%D7%AA_%D7%94%D7%99%D7%AA%D7%A8_%D7%9C%D7%94%D7%A2%D7%A1%D7%A7%D7%AA_%D7%A2%D7%95%D7%91%D7%93_%D7%96%D7%A8_%D7%91%D7%A1%D7%99%D7%A2%D7%95%D7%93', id:null },
+          { label:'כל שירותי עובדים זרים', desc:'19 שירותים דיגיטליים — gov.il', url:'https://www.gov.il/he/services/department/4fa63b79-3d73-4a66-b3f5-ff385dd31cc7?unitId=dfb13401-e2bb-42c8-898b-afbc87cd6cc8', id:null }
+        ]},
+        { icon:'💼', label:'שירותים נוספים', items:[
+          { label:'שירות התעסוקה', desc:'חיפוש עבודה, דמי אבטלה', url:'https://www.taasuka.gov.il', id:null },
+          { label:'תשלומים ממשלתיים', desc:'קנסות, אגרות, רב-קו', url:'https://www.gov.il/he/pages/payments-services', id:'payments-gov' },
+          { label:'כל-זכות', desc:'מדריך זכויות אזרחים', url:'https://www.kolzchut.org.il', id:null },
+          { label:'מנוע הזכויות הלאומי', desc:'בדיקת זכויות אישיות', url:'https://www.gov.il/he/service/rights-engine', id:null }
+        ]}
+      ];
+
+      var openMinistry = null;
+      var openSubGroup = null;
+      var selectedMinistry = null;
+
+      function clearMinistryFilter() {
+        selectedMinistry = null;
+        var bar = document.getElementById('selected-ministry-bar');
+        if (bar) bar.style.display = 'none';
+      }
+
+      function buildTree() {
+        var tree = document.getElementById('ministry-tree');
+        if (!tree) return;
+        tree.innerHTML = '';
+
+        MINISTRIES.forEach(function(min, idx) {
+          var isOpen = openMinistry === idx;
+
+          // כותרת משרד
+          var header = document.createElement('div');
+          header.style.cssText = 'background:var(--surface);border:2px solid ' + (isOpen ? 'var(--accent)' : 'var(--border)') + ';border-radius:' + (isOpen ? '14px 14px 0 0' : '14px') + ';padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .15s;flex-shrink:0';
+          header.innerHTML = '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">' + min.icon + '</span><span style="font-size:14px;font-weight:700">' + min.label + '</span></div><span style="color:var(--accent);font-size:13px">' + (isOpen ? '▲' : '▼') + '</span>';
+          header.onclick = function() { openMinistry = isOpen ? null : idx; openSubGroup = null; buildTree(); };
+          tree.appendChild(header);
+
+          if (isOpen) {
+            var list = document.createElement('div');
+            list.style.cssText = 'background:var(--surface2);border:1.5px solid var(--accent);border-top:none;border-radius:0 0 14px 14px;overflow:hidden;flex-shrink:0';
+
+            min.items.forEach(function(item, i) {
+              var hasSubItems = item.subItems && item.subItems.length;
+              var isSubOpen = openSubGroup === idx + '-' + i;
+
+              // שורת פריט
+              var row = document.createElement('div');
+              row.style.cssText = 'border-top:' + (i > 0 ? '1px solid var(--border)' : 'none');
+
+              var rowInner = document.createElement('div');
+              rowInner.style.cssText = 'padding:11px 16px 11px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s';
+              rowInner.innerHTML = '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + item.label + '</div>' + (item.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.desc + '</div>' : '') + '</div>' + (hasSubItems ? '<span style="color:var(--accent);font-size:11px;margin-right:4px">' + (isSubOpen ? '▲' : '▼') + '</span>' : (item.url ? '<span style="color:var(--accent);font-size:11px">↗</span>' : ''));
+              rowInner.onmouseover = function(){ this.style.background='rgba(56,189,248,0.06)'; };
+              rowInner.onmouseout = function(){ this.style.background='none'; };
+
+              if (hasSubItems) {
+                rowInner.onclick = function(e) { e.stopPropagation(); openSubGroup = isSubOpen ? null : (idx + '-' + i); buildTree(); };
+              } else {
+                rowInner.onclick = (function(m, it) { return function(e) {
+                  e.stopPropagation();
+                  selectedMinistry = m;
+                  var bar = document.getElementById('selected-ministry-bar');
+                  var nameEl = document.getElementById('selected-ministry-name');
+                  if (bar && nameEl) { nameEl.textContent = m.icon + ' ' + m.label; bar.style.display = 'flex'; }
+                  if (it.id) { openItem(it.id); }
+                  else if (it.url) { window.open(it.url, '_blank'); }
+                }; })(min, item);
+              }
+              row.appendChild(rowInner);
+
+              // תת-פריטים (בתי חולים)
+              if (hasSubItems && isSubOpen) {
+                var subList = document.createElement('div');
+                subList.style.cssText = 'background:rgba(56,189,248,0.04);border-top:1px solid var(--border)';
+                item.subItems.forEach(function(sub, si) {
+                  var subRow = document.createElement('a');
+                  subRow.href = sub.url;
+                  subRow.target = '_blank';
+                  subRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 16px 10px 28px;font-size:12px;color:#93c5fd;text-decoration:none;border-top:' + (si > 0 ? '1px solid rgba(51,65,85,0.5)' : 'none') + ';transition:background .1s';
+                  subRow.innerHTML = '<span>' + sub.label + '</span><span style="font-size:10px;opacity:0.7">↗</span>';
+                  subRow.onmouseover = function(){ this.style.background='rgba(56,189,248,0.08)'; };
+                  subRow.onmouseout = function(){ this.style.background='none'; };
+                  subList.appendChild(subRow);
+                });
+                row.appendChild(subList);
+              }
+
+              list.appendChild(row);
+            });
+            tree.appendChild(list);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', buildTree);
+      } else {
+        buildTree();
+      }
+      </script>
+    </div>
+
+    <!-- ══ מסך 2: תת-קטגוריה ══ -->
+    <div class="screen" id="s2">
+      <button class="btn-back" onclick="goBack(1)">← חזרה</button>
+      <div class="screen-title" id="s2-title"></div>
+      <div class="screen-sub">בחרו את הנושא המדויק</div>
+      <div class="sub-list" id="sub-list"></div>
+    </div>
+
+    <!-- ══ מסך 3: תשובה מלאה ══ -->
+    <div class="screen" id="s3">
+      <button class="btn-back" id="s3-back-btn" onclick="goBack(2)">← חזרה</button>
+
+      <!-- תשובה סטטית מהמאגר -->
+      <div id="static-answer"></div>
+
+      <!-- קופסת שאלה חופשית -->
+      <div class="followup-box" id="followup-area">
+        <div class="search-go" onclick="doFollowup()">🤖</div>
+        <input type="text" id="followup-input"
+          placeholder="שאלו שאלה נוספת... (לדוגמה: תנו לי קישור ישיר)"
+          onkeydown="if(event.key==='Enter')doFollowup()">
+      </div>
+
+      <!-- AI תשובה -->
+      <div id="ai-area" class="hidden">
+        <div class="ai-box">
+          <div class="ai-header">
+            <span class="ai-badge">✨ בינה מלאכותית</span>
+          </div>
+          <div id="ai-typing" class="ai-typing hidden">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>מחשב תשובה...</span>
+          </div>
+          <div id="ai-content"></div>
+        </div>
+      </div>
+
+      <button class="btn-reset" onclick="resetAll()">🔄 נושא חדש</button>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- WA bar -->
+  <div class="wa-bar">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <span style="font-size:13px;color:var(--muted);">לא מצאת? פני לגימלאטק:</span>
+      <a href="https://wa.me/972503960685" target="_blank" style="
+        display:flex;align-items:center;justify-content:center;gap:6px;
+        background:var(--wa);color:white;text-decoration:none;
+        padding:9px 16px;border-radius:20px;font-weight:700;font-size:13px;
+        font-family:'Heebo',sans-serif;white-space:nowrap;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        0503960685
+      </a>
+    </div>
+  </div>
+
+  <!-- copyright footer -->
+  <div style="text-align:center;padding:10px 18px 6px;border-top:1px solid #1e293b">
+    <button onclick="document.getElementById('about-modal').classList.remove('hidden')"
+      style="background:none;border:none;color:#334155;font-size:11px;cursor:pointer;font-family:'Heebo',sans-serif;">
+      © 2026 רויטל פלד &nbsp;·&nbsp; 🛡️ זכויות יוצרים
+    </button>
+  </div>
+  <div style="background:#0c1a2e;border-top:1px solid #1e3a5f;padding:8px 18px;text-align:center;font-size:11px;color:#38bdf8;letter-spacing:0.3px">
+    🛡️ כלי זה מוגן בזכויות יוצרים &nbsp;|&nbsp; © Revital Peled 2026 &nbsp;|&nbsp; All Rights Reserved
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div class="modal-overlay hidden" id="about-modal" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="modal-box" style="text-align:right;max-height:85vh;overflow-y:auto">
+      <div class="modal-title">🛠️ GimlaTech — GT-GDSH</div>
+      <div style="background:#0f172a;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:13px;color:#94a3b8;line-height:2">
+          <strong style="color:#38bdf8">יוצרת:</strong> רויטל פלד<br>
+          <strong style="color:#38bdf8">מטרה:</strong> הנגשת שירותים ממשלתיים דיגיטליים לאזרחים ותיקים<br>
+          <strong style="color:#38bdf8">מקור מידע:</strong> <a href="https://www.gov.il/he/services" target="_blank" style="color:#38bdf8">gov.il/he/services</a><br>
+          <strong style="color:#38bdf8">נבנה בסיוע:</strong> Claude AI מבית Anthropic
+        </div>
+      </div>
+      <div style="background:rgba(251,191,36,0.08);border-right:3px solid #fbbf24;padding:10px 12px;border-radius:8px;font-size:12px;color:#fde68a;margin-bottom:14px">
+        ⚠️ המדריך מספק מידע כללי בלבד. לייעוץ מקצועי יש לפנות ישירות לרשויות.
+      </div>
+      <div style="font-size:13px;color:#64748b;line-height:2;margin-bottom:14px">
+        📞 ביטוח לאומי: <strong style="color:#94a3b8">*6050</strong><br>
+        📞 שירות לאזרח: <strong style="color:#94a3b8">*2161</strong><br>
+        📞 מס הכנסה: <strong style="color:#94a3b8">*4954</strong><br>
+        📞 ותיקים — משרד שוויון חברתי: <strong style="color:#94a3b8">*8840</strong>
+      </div>
+      <button class="modal-cancel" onclick="document.getElementById('about-modal').classList.add('hidden')">סגור</button>
+    </div>
+  </div>
+
+  <!-- WA MODAL -->
+  <div class="modal-overlay hidden" id="wa-modal" onclick="if(event.target===this)closePhoneModal()">
+    <div class="modal-box">
+      <div class="modal-title">📲 שלח תשובה בוואטסאפ</div>
+      <div class="modal-sub">הכניסו את מספר הטלפון של המקבל</div>
+      <input class="modal-input" id="wa-phone-input" type="tel" placeholder="050-000-0000"
+        onkeydown="if(event.key==='Enter')sendWANow()">
+      <div class="modal-error" id="wa-modal-error"></div>
+      <button class="modal-send" onclick="sendWANow()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        שלח עכשיו
+      </button>
+      <button class="modal-cancel" onclick="closePhoneModal()">ביטול</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+</div><!-- /page-wrap -->
+
+<script>
+// ════════════════════════════════
+//  PROXY (Apps Script)
+// ════════════════════════════════
+var PROXY = 'https://script.google.com/macros/s/AKfycbynt8UaVQFZKa_NVE_wSLpfpJo-HuoVcrooJnh89JFlOPp1eymMeUs91lEtWWVPijA/exec';
+
+// ════════════════════════════════
+//  מאגר שירותים
+// ════════════════════════════════
+var DB = [
+  // ── ביטוח לאומי ──
+  {id:'btl-old', cat:'btl', icon:'👴',
+   title:'קצבת אזרח ותיק (זקנה)',
+   desc:'קצבה חודשית לגברים מגיל 67, נשים מגיל 62',
+   kw:['זקנה','ותיק','קצבה','פנסיה','גמלה','כסף','חודשי','אזרח','תשלום','זכאות','ביטוח לאומי','גיל פרישה'],
+   steps:['גשו לאתר <strong>btl.gov.il</strong> ← "טפסים מקוונים" ← טופס <strong>1514</strong>.',
+          'מלאו פרטים אישיים + העלו: ספח ת"ז ואישור חשבון בנק.',
+          'שלחו. עקבו אחר הסטטוס ב"אזור האישי" — טיפול 2–3 שבועות.',
+          'תשלום ב-1 וב-26 לחודש. בדקו בלוח התשלומים.'],
+   tip:'💡 קיבלתם מכתב מביטוח לאומי על גיל הזכאות? לפעמים הקצבה נפתחת אוטומטית!',
+   canDo:['הגשת תביעה מקוונת','בדיקת סטטוס תביעה','עדכון חשבון בנק','לוח תשלומים'],
+   cantDo:['ייעוץ אישי על זכאות — התקשרו *6050','שינוי מועד קבלת קצבה'],
+   links:[{t:'אתר ביטוח לאומי',u:'https://www.btl.gov.il',p:true},{t:'טפסים מקוונים',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'},{t:'לוח תשלומים',u:'https://www.btl.gov.il/Pages/BenefitsPaymentDates.aspx'}],
+   ai:'אתה סייע בנושא קצבת אזרח ותיק (זקנה) מביטוח לאומי ישראל. זכאות: גברים 67+, נשים 62+ (עולה בהדרגה). הגשה: btl.gov.il, טופס 1514. מסמכים: ספח ת"ז + אישור בנק. תשלום ב-1 וב-26. ענה בעברית פשוטה ומעשית.'
+  },
+  {id:'btl-nursing', cat:'btl', icon:'🏥',
+   title:'קצבת סיעוד',
+   desc:'עזרה בבית לתלויים, שלוש רמות גמלה',
+   kw:['סיעוד','עזרה','בית','טיפול','מטפל','תלות','עזרה בבית','קשיש','סיוע','עובד זר','גמלה','ביטוח לאומי'],
+   steps:['אתר btl.gov.il ← "טפסים מקוונים" ← טופס <strong>4840</strong>.',
+          'פקיד ביטוח לאומי יגיע לביתכם לבדיקת רמת התלות.',
+          'תיקבע רמה: חלקית / מלאה / מוגברת.',
+          'בחרו סוג גמלה: עובד מסיעוד / שובר לחברה / כסף לניהול עצמי.'],
+   tip:'💡 תארו את כל הקשיים בפירוט לפני הבדיקה — זה משפיע על הרמה!',
+   canDo:['הגשת תביעה ראשונית','בדיקת סטטוס','עדכון חשבון בנק'],
+   cantDo:['הבדיקה הרפואית חייבת פנים-אל-פנים','לא ניתן לבחור מטפל ספציפי אונליין'],
+   links:[{t:'קצבת סיעוד — מידע',u:'https://www.btl.gov.il/benefits/Nursing/Pages/default.aspx',p:true},{t:'טופס 4840',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא גמלת סיעוד מביטוח לאומי ישראל. טופס 4840. בדיקה רפואית בבית. שלוש רמות: חלקית/מלאה/מוגברת. שלוש אפשרויות: עובד סיעוד, שובר, כסף. ענה בעברית פשוטה.'
+  },
+  {id:'btl-income', cat:'btl', icon:'🤝',
+   title:'הבטחת הכנסה',
+   desc:'השלמת הכנסה לבעלי הכנסה נמוכה',
+   kw:['הכנסה','עוני','תמיכה','השלמה','גמלה','מינימום'],
+   steps:['btl.gov.il ← "טפסים מקוונים" ← טופס <strong>6114</strong>.',
+          'צרפו: ת"ז + ספח, אישורי הכנסה, אישור בנק.',
+          'ייקבע ראיון עם פקיד (אפשרי גם בטלפון).',
+          'דיווח חודשי על שינויים — דרך האזור האישי.'],
+   tip:'💡 גם אם עובדים — ייתכן שמגיע השלמת הכנסה. שווה לבדוק!',
+   canDo:['הגשת תביעה','דיווח חודשי','בדיקת סטטוס'],
+   cantDo:['לא ניתן לדלג על ראיון עם פקיד','לא ניתן לקבל מקדמה אונליין'],
+   links:[{t:'הבטחת הכנסה — מידע',u:'https://www.btl.gov.il/benefits/income_guarantee/Pages/default.aspx',p:true}],
+   ai:'אתה סייע בנושא הבטחת הכנסה מביטוח לאומי ישראל. טופס 6114. מסמכים: ת"ז, אישורי הכנסה, בנק. ראיון עם פקיד חובה. דיווח חודשי. ענה בעברית פשוטה.'
+  },
+  {id:'btl-disability', cat:'btl', icon:'♿',
+   title:'נכות כללית',
+   desc:'קצבת נכות לאנשים עם מוגבלות',
+   kw:['נכות','מוגבלות','נכה','קצבה','ועדה'],
+   steps:['btl.gov.il ← "טפסים מקוונים" ← טופס <strong>5130</strong>.',
+          'תיקבע ועדה רפואית לקביעת אחוז נכות.',
+          'לאחר ההחלטה ניתן לערער.',
+          'זכאים לשירותים נוספים: תג נכה, הנחות, שיקום.'],
+   tip:'💡 לייעוץ חינם בנושא זכויות נכים — פנו לביטוח לאומי *6050',
+   canDo:['הגשת תביעה','בדיקת סטטוס','שליחת מסמכים'],
+   cantDo:['ועדה רפואית — פנים-אל-פנים בלבד','ערעור דורש הליך ידני'],
+   links:[{t:'נכות כללית — מידע',u:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx',p:true},{t:'טפסים מקוונים — ביטוח לאומי',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא קצבת נכות כללית מביטוח לאומי ישראל. טופס 5130. ועדה רפואית. ניתן לערער. שירותים נוספים: תג נכה, הנחות, שיקום. ענה בעברית פשוטה.'
+  },
+
+  // ── בריאות ──
+  {id:'health-clalit', cat:'health', icon:'💙',
+   title:'כללית — תורים ושירותים',
+   desc:'clalit.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['כללית','תור','רופא','בדיקה','מרשם','clalit','קביעת תור','קופת חולים','מומחה','תוצאות'],
+   steps:['היכנסו ל-<strong>clalit.co.il</strong> עם מספר ת"ז וסיסמה.',
+          'קביעת תור: "תורים ← קביעת תור" ← בחרו רופא ← בחרו תאריך.',
+          'תוצאות בדיקות: "הבדיקות שלי" — מופיעות תוך 24–48 שעות.',
+          'הזמנת מרשם: "מרשמים" ← בחרו תרופה ← שלחו לאישור רופא.'],
+   tip:'💡 אין תורים? בדקו ביטולים בשעות הבוקר — לרוב מתפנים.',
+   canDo:['קביעת תורים','צפייה בבדיקות','הזמנת מרשמים','שיחת וידאו עם רופא'],
+   cantDo:['מצב חירום — התקשרו 101','החלפת קופה — רק ב-1.1 בנייר'],
+   links:[{t:'כללית — כניסה',u:'https://www.clalit.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים כללית (clalit.co.il). קביעת תורים, תוצאות בדיקות, הזמנת מרשמים, שיחת וידאו. ענה בעברית פשוטה.'
+  },
+  {id:'health-maccabi', cat:'health', icon:'💚',
+   title:'מכבי — תורים ושירותים',
+   desc:'maccabi4u.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['מכבי','תור','רופא','בדיקה','מרשם','maccabi'],
+   steps:['היכנסו ל-<strong>maccabi4u.co.il</strong> עם ת"ז וסיסמה.',
+          'קביעת תור: "קביעת תור" ← בחרו סוג/מומחה ← תאריך.',
+          'תוצאות בדיקות: "הבריאות שלי ← בדיקות".',
+          'הזמנת מרשם: "מרשמים" ← חידוש מרשם קיים.'],
+   tip:'💡 מכבי מציעה שיחת וידאו עם רופא — מהירה לשאלות פשוטות.',
+   canDo:['קביעת תורים','בדיקות ומרשמים','שיחת וידאו','הורדת מסמכים רפואיים'],
+   cantDo:['חירום — 101','החלפת קופה — ב-1.1 בלבד'],
+   links:[{t:'מכבי — כניסה',u:'https://www.maccabi4u.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים מכבי (maccabi4u.co.il). קביעת תורים, בדיקות, מרשמים, שיחת וידאו. ענה בעברית פשוטה.'
+  },
+  {id:'health-leumit', cat:'health', icon:'🔵',
+   title:'לאומית — תורים ושירותים',
+   desc:'leumit.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['לאומית','תור','רופא','בדיקה','leumit'],
+   steps:['היכנסו ל-<strong>leumit.co.il</strong>.',
+          'קביעת תור: "תורים" ← בחרו קטגוריה ← רופא ← תאריך.',
+          'תוצאות בדיקות: "הפרופיל הבריאותי שלי".',
+          'הזמנת מרשם: "מרשמים חוזרים".'],
+   tip:'💡 לאומית מאפשרת גם ביטול/שינוי תור בהודעת SMS.',
+   canDo:['קביעת תורים','בדיקות ומרשמים','מסמכים רפואיים'],
+   cantDo:['חירום — 101','שינוי רופא משפחה — לרוב דורש פנייה לסניף'],
+   links:[{t:'לאומית — כניסה',u:'https://www.leumit.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים לאומית (leumit.co.il). קביעת תורים, בדיקות, מרשמים. ענה בעברית פשוטה.'
+  },
+  {id:'health-meuhedet', cat:'health', icon:'🟣',
+   title:'מאוחדת — תורים ושירותים',
+   desc:'meuhedet.co.il — קביעת תור, בדיקות, מרשמים',
+   kw:['מאוחדת','תור','רופא','בדיקה','meuhedet'],
+   steps:['היכנסו ל-<strong>meuhedet.co.il</strong>.',
+          'קביעת תור: "תורים" ← בחרו מחלקה ← רופא ← תאריך.',
+          'תוצאות בדיקות: "הפרופיל הרפואי".',
+          'הזמנת מרשם: "מרשמים" ← חידוש.'],
+   tip:'💡 מאוחדת מציעה אפליקציה נוחה לניהול כל השירותים.',
+   canDo:['קביעת תורים','בדיקות ומרשמים','מסמכים'],
+   cantDo:['חירום — 101'],
+   links:[{t:'מאוחדת — כניסה',u:'https://www.meuhedet.co.il',p:true}],
+   ai:'אתה סייע בנושא שירותי קופת חולים מאוחדת (meuhedet.co.il). קביעת תורים, בדיקות, מרשמים. ענה בעברית פשוטה.'
+  },
+  {id:'health-hospital', cat:'health', icon:'🏨',
+   title:'בתי חולים — תורים ואשפוז',
+   desc:'קביעת תור למרפאות, שחרור, ניהול אשפוז',
+   kw:['בית חולים','אשפוז','מרפאה','ניתוח','אמבולטורי','חוץ','שחרור'],
+   steps:['לחצו על לינק בית החולים הרלוונטי מהרשימה.',
+          'כניסה עם פרטי ת"ז ← חפשו "קביעת תור מרפאה".',
+          'לשחרור מאשפוז: בקשו "מכתב שחרור" דרך מערכת בית החולים.',
+          'ממתינים לניתוח? בדקו סטטוס רשימת המתנה דרך האתר.'],
+   tip:'💡 רוב בתי החולים מאפשרים גם ביטול/שינוי תור בSMS ← קישור.',
+   canDo:['קביעת תור מרפאה חוץ','בדיקת רשימת המתנה','הורדת מכתב שחרור'],
+   cantDo:['חירום — 101 בלבד','שחרור מוקדם דורש אישור רפואי פנים-אל-פנים'],
+   links:[{t:'רשימת בתי חולים — gov.il',u:'https://www.gov.il/he/departments/topics/hospitals',p:true},{t:'סורוקה — באר שבע',u:'https://www.soroka.health.gov.il'},{t:'רמב"ם — חיפה',u:'https://www.rambam.health.gov.il'},{t:'בתי חולים ממשלתיים',u:'https://www.gov.il/he/departments/ministry_of_health'}],
+   ai:'אתה סייע בנושא שירותי בתי חולים בישראל. קביעת תורים למרפאות חוץ, בדיקת רשימות המתנה לניתוחים, הורדת מכתב שחרור. בתי חולים עיקריים: שיבא, איכילוב, הדסה, רמב"ם, סורוקה. חירום: 101. ענה בעברית פשוטה.'
+  },
+
+  // ── הזדהות ──
+  {id:'id-login', cat:'id', icon:'🔑',
+   title:'הרשמה לשירותי gov.il',
+   desc:'פתיחת חשבון לכל השירותים הממשלתיים',
+   kw:['הזדהות','כניסה','סיסמה','חשבון','gov','הרשמה','login'],
+   steps:['גשו ל-<strong>login.gov.il</strong> ← לחצו "הרשמה".',
+          'הכניסו ת"ז, כתובת מייל, מספר נייד.',
+          'הכניסו קוד SMS שנשלח לטלפון (תוך 5 דקות).',
+          'קבעו סיסמה: לפחות 8 תווים, אות גדולה, מספר, תו מיוחד.'],
+   tip:'💡 אחרי הרשמה חד-פעמית — כניסה עתידית פשוטה: ת"ז + סיסמה.',
+   canDo:['כניסה לכל השירותים הממשלתיים','הורדת מסמכים רשמיים','הגשת טפסים'],
+   cantDo:['לא ניתן להירשם ללא מספר נייד ישראלי'],
+   links:[{t:'כניסה / הרשמה — login.gov.il',u:'https://login.gov.il',p:true},{t:'שאלות נפוצות על הזדהות',u:'https://www.gov.il/he/pages/signup_sso_faq'}],
+   ai:'אתה סייע בנושא הזדהות ממשלתית ישראל. login.gov.il לכניסה. הרשמה: ת"ז + מייל + נייד + סיסמה + קוד SMS. לאחר הרשמה: ת"ז + סיסמה. my.gov.il לאזור אישי. מנוע הזכויות הלאומי בgov.il לבדיקת זכויות אישיות. ענה בעברית פשוטה.'
+  },
+  {id:'id-mygov', cat:'id', icon:'🪪',
+   title:'האזור האישי — my.gov.il',
+   desc:'ספח ת"ז, רישיון רכב, שינוי כתובת',
+   kw:['אזור אישי','my.gov','מסמכים','ת"ז','ספח','רישיון'],
+   steps:['היכנסו ל-my.gov.il עם פרטי ההזדהות.',
+          'ספח ת"ז: הורדת ספח תעודת זהות ← PDF חתום.',
+          'רישיון רכב: הורדת רישיון רכב ← PDF דיגיטלי.',
+          'שינוי כתובת, העברת בעלות רכב, שיוך תג נכה, חידוש רישיון נהיגה.'],
+   tip:'💡 המסמכים הדיגיטליים מ-my.gov.il תקפים בדיוק כמו המקוריים!',
+   canDo:['הורדת ספח ת"ז','הורדת רישיון רכב','שינוי כתובת','העברת בעלות רכב','שיוך תג נכה לרכב','מעקב אחר בקשת דרכון','סטטוס צו ירושה'],
+   cantDo:['הנפקת דרכון/ת"ז חדשים — ביקור בסניף חובה'],
+   links:[{t:'my.gov.il — האזור האישי',u:'https://my.gov.il',p:true}],
+   ai:'אתה סייע בנושא my.gov.il — האזור האישי הממשלתי. ניתן: הורדת ספח ת"ז, רישיון רכב, שינוי כתובת, העברת בעלות רכב. ענה בעברית פשוטה.'
+  },
+
+
+  // ── ירושה וצוואה ──
+  {id:'inheritance', cat:'id', icon:'📜',
+   title:'ירושה, צוואה וצו ירושה',
+   desc:'הגשת בקשה לצו ירושה, צוואה, רשם לענייני ירושה',
+   kw:['ירושה','צוואה','צו ירושה','רשם','נפטר','עיזבון','יורש','עזבון','הורים נפטרו'],
+   steps:['הגישו בקשה לצו ירושה: כנסו לאתר inheritance.justice.gov.il.',
+          'יש לצרף: תעודת פטירה, ת"ז של היורשים, אישור תושבות.',
+          'ניתן לעקוב אחר סטטוס הבקשה ב-my.gov.il.',
+          'צוואה: ניתן להפקיד צוואה ברשם הירושה ולאחסנה בבטחה.'],
+   tip:'💡 ניתן להגיש בקשה לצו ירושה מקוון ולחסוך ביקור לסניף!',
+   canDo:['הגשת בקשה לצו ירושה אונליין','בדיקת סטטוס','הפקדת צוואה'],
+   cantDo:['ייעוץ משפטי — עורך דין','סכסוכי ירושה — בית משפט'],
+   links:[{t:'רשם לענייני ירושה — אונליין',u:'https://inheritance.justice.gov.il/',p:true},{t:'my.gov.il — סטטוס צו ירושה',u:'https://my.gov.il'}],
+   ai:'אתה סייע בנושא ירושה וצוואה בישראל. רשם לענייני ירושה: inheritance.justice.gov.il. ניתן להגיש צו ירושה אונליין. מעקב ב-my.gov.il. ענה בעברית פשוטה.'
+  },
+
+  // ── רשות האוכלוסין — שירותים נוספים ──
+  {id:'piba-services', cat:'id', icon:'🏢',
+   title:'רשות האוכלוסין — כל השירותים',
+   desc:'שינוי שם, רישום לידה, שינוי מצב אישי ועוד',
+   kw:['רשות האוכלוסין','שינוי שם','לידה','רישום ילד','מצב אישי','נישואין','גירושין','עלייה','אזרחות','תושבות'],
+   steps:['כנסו לפורטל השירות העצמי: govextra.gov.il/piba/piba-services/first-page.',
+          'זמינים: שינוי שם, רישום לידה, שינוי מצב אישי, הנפקת מסמכים.',
+          'לתורים: זמנו תור מהאתר ← בחרו שירות ← בחרו סניף ותאריך.',
+          'מוקד שירות ארצי: חייגו 3450.'],
+   tip:'💡 חלק מהשירותים ניתנים לביצוע מקוון מלא — בדקו לפני שמגיעים לסניף!',
+   canDo:['זימון תור לכל שירות','הנפקת מסמכים','שינוי פרטים מסוימים מקוון'],
+   cantDo:['שירותים הדורשים נוכחות פיזית — ביקול בסניף'],
+   links:[{t:'פורטל שירות עצמי — רשות האוכלוסין',u:'https://govextra.gov.il/piba/piba-services/first-page/',p:true},{t:'אתר רשות האוכלוסין',u:'https://www.gov.il/piba'}],
+   ai:'אתה סייע בנושא שירותי רשות האוכלוסין וההגירה בישראל. פורטל: govextra.gov.il/piba/piba-services/first-page. שירותים: שינוי שם, לידה, מצב אישי, דרכון, ת"ז. מוקד: *3450. ענה בעברית פשוטה.'
+  },
+  // ── מיסים ──
+  {id:'tax-main', cat:'tax', icon:'📄',
+   title:'מס הכנסה — אישורים והחזרים',
+   desc:'אישורי הכנסה, החזר מס, דוח שנתי',
+   kw:['מס','הכנסה','החזר','אישור','דוח','שנתי','מס הכנסה','תור','פקיד שומה','רשות המסים','טופס','החזר מס','תשלום מס','פטור'],
+   steps:['היכנסו ל-<strong>secapp.taxes.gov.il</strong>.',
+          'אישור הכנסות: "אישור הכנסות שנתי" ← בחרו שנה ← הורידו PDF.',
+          'החזר מס: "בקשת החזר מס" ← מלאו (עד 6 שנים אחורה!).',
+          'דוח שנתי: עצמאים עד 30.4. שכירים — לרוב פטורים.'],
+   tip:'💡 רוב השכירים זכאים להחזר מס — שווה לבדוק אחורה 6 שנים!',
+   canDo:['אישורי הכנסה','בקשת החזר מס','הגשת דוח שנתי','בדיקת חוב/זכות'],
+   cantDo:['קנסות — יש לפנות לשומה הקרובה','ייעוץ מס — עורך דין/רואה חשבון'],
+   links:[{t:'כניסה למס הכנסה',u:'https://secapp.taxes.gov.il',p:true},{t:'רשות המסים',u:'https://www.taxes.gov.il'}],
+   ai:'אתה סייע בנושא מס הכנסה ישראל. secapp.taxes.gov.il. אישורי הכנסה (PDF), בקשת החזר (עד 6 שנים), דוח שנתי (עצמאים עד 30.4). ענה בעברית פשוטה.'
+  },
+
+  {id:'transport-driving', cat:'transport', icon:'🪪',
+   title:'רישיון נהיגה — חידוש והנפקה',
+   desc:'חידוש, שדרוג, אובדן רישיון נהיגה',
+   kw:['רישיון נהיגה','דרייברס','חידוש רישיון','נהיגה','נהג','שדרוג רישיון','איבוד רישיון','אבדן רישיון'],
+   steps:['חידוש רישיון נהיגה: גשו לסניף רשות הרישוי הקרוב עם ת"ז ותמונה.',
+          'קביעת תור: gov.il ← קביעת תור רשות הרישוי.',
+          'רישיון אבוד: הצהרה במשטרה ← גשו לרשות הרישוי.',
+          'שדרוג קטגוריה (אוטובוס/משאית): דורש בחינה ורופא מוסמך.'],
+   tip:'💡 חידוש רישיון נהיגה חייב ביקור פיזי — לא ניתן לבצע אונליין!',
+   canDo:['קביעת תור לרשות הרישוי אונליין','בדיקת תוקף רישיון'],
+   cantDo:['חידוש רישיון — ביקור פיזי חובה','שדרוג קטגוריה — בחינה + רופא'],
+   links:[{t:'קביעת תור — רשות הרישוי',u:'https://rishuy.mot.gov.il/he/',p:true},{t:'רשות הרישוי — gov.il',u:'https://rishuy.mot.gov.il/he/'}],
+   ai:'אתה סייע בנושא רישיון נהיגה בישראל. חידוש: ביקור פיזי בסניף רשות הרישוי חובה, קבעו תור ב-gov.il. רישיון אבוד: הצהרה במשטרה + ביקור. שדרוג: בחינה + רופא. ענה בעברית פשוטה.'
+  },
+  {id:'transport-license', cat:'transport', icon:'🚗',
+   desc:'הורדה דיגיטלית, טסט, העברת בעלות',
+   kw:['רישיון','רכב','טסט','בדיקה','בעלות','העברה'],
+   steps:['הורדת רישיון: my.gov.il ← "רישיון רכב" ← הורידו PDF.',
+          'בדיקת פרטי רכב: gov.il ← "בדיקת רכב" (ביטוח, תוקף, בעלות).',
+          'תור לטסט: gov.il ← "קביעת תור לטסט" ← בחרו תחנה.',
+          'העברת בעלות: my.gov.il ← "העברת בעלות" — שני הצדדים מזדהים.'],
+   tip:'💡 הרישיון הדיגיטלי תקף בדיוק כמו הפיזי — שוטרים מקבלים אותו!',
+   canDo:['הורדת רישיון דיגיטלי','בדיקת פרטי רכב','תור לטסט','העברת בעלות'],
+   cantDo:['רישיון נהיגה (דרייברים) — ביקור בסניף','רישיון אבוד — ביקור ברשות הרישוי'],
+   links:[{t:'my.gov.il',u:'https://my.gov.il',p:true},{t:'קביעת תור לטסט',u:'https://www.gov.il/he/service/car-test-appointment'}],
+   ai:'אתה סייע בנושא רישיון רכב בישראל. my.gov.il: הורדת רישיון PDF, בדיקת פרטי רכב, תור לטסט, העברת בעלות. ענה בעברית פשוטה.'
+  },
+  {id:'transport-passport', cat:'transport', icon:'✈️',
+   title:'דרכון ותעודת זהות',
+   desc:'הנפקה, חידוש, זימון תור — רשות האוכלוסין',
+   kw:['דרכון','תעודת זהות','ת"ז','חידוש','הנפקה','תוקף','משרד הפנים','תור','פנים','זהות','ביומטרי','רשות האוכלוסין','piba'],
+   steps:['זימון תור: כנסו ל-govextra.gov.il/piba/piba-services/first-page ← בחרו שירות.',
+          'שירותים זמינים: דרכון ביומטרי חדש, חידוש דרכון, תעודת זהות ביומטרית.',
+          'הגיעו לסניף עם: ת"ז קיימת, תמונה ביומטרית, תשלום אגרה.',
+          'ספח ת"ז דיגיטלי: my.gov.il ← הורדת ספח ת"ז ← PDF חתום (ללא ביקור).'],
+   tip:'💡 ניתן גם לחדש ת"ז מקוון מאז אפריל 2024! כנסו לאתר רשות האוכלוסין.',
+   canDo:['זימון תור אונליין','חידוש ת"ז מקוון (מאפריל 2024)','הורדת ספח ת"ז — my.gov.il'],
+   cantDo:['הנפקת דרכון חדש — ביקור חובה','ת"ז אבודה — ביקור בסניף'],
+   links:[{t:'זימון תור — רשות האוכלוסין',u:'https://govextra.gov.il/piba/piba-services/first-page/',p:true},{t:'חידוש ת"ז מקוון',u:'https://www.gov.il/he/service/application-for-biometric-passport-or-idcard'},{t:'my.gov.il — ספח ת"ז',u:'https://my.gov.il'}],
+   ai:'אתה סייע בנושא דרכון ות"ז בישראל. חידוש ת"ז מקוון (ללא ביקור): gov.il/he/service/application-for-biometric-passport-or-idcard. חידוש/הנפקת דרכון — ביקור בסניף חובה, זמן תור: govisit.gov.il. ספח ת"ז: my.gov.il. מוקד: *3450. ענה בעברית פשוטה.'
+  },
+
+  // ── מגורים ──
+  {id:'housing-address', cat:'housing', icon:'🏠',
+   title:'עדכון כתובת מגורים',
+   desc:'שינוי מען במשרד הפנים, ביטוח לאומי ובנק',
+   kw:['כתובת','מען','שינוי','עיר','דירה','מגורים','עברתי'],
+   steps:['משרד הפנים: <strong>my.gov.il</strong> ← "שינוי כתובת מגורים".',
+          'ביטוח לאומי: btl.gov.il ← "אזור אישי" ← "עדכון פרטים".',
+          'בנק: ביקור בסניף עם ת"ז ואסמכתא (חשמל / ארנונה).',
+          'עירייה: צרו קשר עם הרשות המקומית לעדכון ברשימות תושבים.'],
+   tip:'💡 עדכון במשרד הפנים גורר עדכון אוטומטי בחלק מהרשויות — אבל לא בכולן!',
+   canDo:['שינוי כתובת במשרד הפנים','עדכון בביטוח לאומי'],
+   cantDo:['בנק — ביקור בסניף ברוב הבנקים','קופת חולים — לרוב ידני'],
+   links:[{t:'my.gov.il — שינוי כתובת',u:'https://my.gov.il',p:true},{t:'ביטוח לאומי',u:'https://www.btl.gov.il'}],
+   ai:'אתה סייע בנושא עדכון כתובת מגורים בישראל. my.gov.il לשינוי כתובת. btl.gov.il לביטוח לאומי. בנק — ביקור בסניף עם ת"ז + אסמכתא. ענה בעברית פשוטה.'
+  },
+  {id:'housing-arnona', cat:'housing', icon:'🏙️',
+   title:'ארנונה ועירייה',
+   desc:'תשלום, פטורים והנחות לוותיקים',
+   kw:['ארנונה','עירייה','תשלום','חוב','הנחה','פטור','רשות מקומית'],
+   steps:['תשלום: חפשו "עיריית [שם העיר] תשלום ארנונה" — רוב הרשויות מאפשרות אונליין.',
+          'בדיקת חוב/יתרה: אתר הרשות המקומית שלכם.',
+          'הנחה לוותיקים: פנו לאגף ארנונה בעירייה עם אישורי הכנסה.',
+          'הנחה של עד 90% אפשרית לבעלי הכנסה נמוכה!'],
+   tip:'💡 אזרחים ותיקים עם קצבת זקנה עשויים להיות זכאים להנחה גדולה — שווה לברר!',
+   canDo:['תשלום ארנונה אונליין (ברוב הרשויות)','בדיקת יתרת חוב','הפקת אישורי תשלום'],
+   cantDo:['הגשת בקשת הנחה — לא תמיד אונליין','ערעור — ועדת ערר'],
+   links:[{t:'הנחות ארנונה — משרד הפנים',u:'https://www.gov.il/he/service/arnona-discount',p:true},{t:'מידע על ארנונה — gov.il',u:'https://www.gov.il/he/departments/topics/arnona'}],
+   ai:'אתה סייע בנושא ארנונה ועירייה בישראל. תשלום אונליין בחלק מהרשויות. הנחה לוותיקים עם הכנסה נמוכה — עד 90%. פנייה לאגף ארנונה. ענה בעברית פשוטה.'
+  },
+
+  // ── פנסיה וביטוח ──
+  {id:'pension-main', cat:'btl', icon:'💰',
+   title:'פנסיה — בדיקת זכויות ומשיכה',
+   desc:'פנסיה תעסוקתית, קרנות פנסיה, קופות גמל',
+   kw:['פנסיה','קרן פנסיה','גמל','פיצויים','קופת גמל','ביטוח מנהלים','משיכת פנסיה','זכויות פנסיה'],
+   steps:['בדיקת כל הפנסיות שלכם: גשו ל-<strong>gov.il</strong> ← חיפוש "מסלקה פנסיונית".',
+          'ניתן לראות את כל קרנות הפנסיה וקופות הגמל שלכם במקום אחד.',
+          'לשאלות: פנו לאגף שוק ההון במשרד האוצר: 02-5016666.',
+          'גיל פרישה: גברים 67, נשים 62 (עולה). ניתן למשוך בגיל הפרישה.'],
+   tip:'💡 שכחתם פנסיה ישנה? המסלקה הפנסיונית מציאה כספים "שכוחים"!',
+   canDo:['בדיקת כל הפנסיות אונליין','הצגת יתרות'],
+   cantDo:['משיכת פנסיה — דרך קרן הפנסיה הספציפית','ייעוץ — יועץ פנסיוני מוסמך'],
+   links:[{t:'מסלקה פנסיונית — gov.il',u:'https://www.gov.il/he/service/pension-clearinghouse',p:true},{t:'רשות שוק ההון',u:'https://www.gov.il/he/departments/capital_market_authority'}],
+   ai:'אתה סייע בנושא פנסיה בישראל. מסלקה פנסיונית ב-gov.il מציגה כל הקרנות. גיל פרישה: גברים 67, נשים 62. לשאלות: 02-5016666. ענה בעברית פשוטה.'
+  },
+  {id:'btl-caregiver', cat:'btl', icon:'👨‍👩‍👧',
+   title:'קצבת שאירים',
+   desc:'קצבה לאלמן/אלמנה ויתומים מביטוח לאומי',
+   kw:['שאירים','אלמן','אלמנה','יתום','נפטר','פטירה','ירושה','קצבת שאירים'],
+   steps:['הגישו תביעה ב-btl.gov.il ← "טפסים מקוונים" ← "תביעה לקצבת שאירים" (טופס 1516).',
+          'צרפו: תעודת פטירה, ספח ת"ז שלכם, אישור חשבון בנק.',
+          'הזכאות נבדקת לפי גיל, הכנסה וצאצאים.',
+          'ניתן לקבל גם קצבת זקנה + קצבת שאירים יחד (הגבוהה ביניהן).'],
+   tip:'💡 יש להגיש תוך 12 חודשים מיום הפטירה לקבל תשלום רטרואקטיבי!',
+   canDo:['הגשת תביעה מקוונת','בדיקת סטטוס','עדכון בנק'],
+   cantDo:['ייעוץ אישי — התקשרו *6050'],
+   links:[{t:'קצבת שאירים — ביטוח לאומי',u:'https://www.btl.gov.il/benefits/survivors/Pages/default.aspx',p:true},{t:'טפסים מקוונים',u:'https://www.btl.gov.il/טפסים%20ואישורים/tfassim-mekuvanim/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא קצבת שאירים מביטוח לאומי. טופס 1516. מסמכים: תעודת פטירה, ת"ז, בנק. יש להגיש תוך 12 חודשים. ענה בעברית פשוטה.'
+  },
+  {id:'health-basket', cat:'health', icon:'💉',
+   title:'סל הבריאות — תרופות וזכויות',
+   desc:'תרופות בסל, אישורים לתרופות, השתלות',
+   kw:['סל בריאות','תרופה','תרופות','אישור תרופה','השתלה','ועדה','ביטוח בריאות','שב"ן'],
+   steps:['בדיקה אם תרופה בסל: gov.il ← חיפוש "תרופות בסל הבריאות".',
+          'בקשה לתרופה שלא בסל: פנו לרופא המטפל ← ועדת חריגים בקופה.',
+          'ביטוח משלים (שב"ן): פנו לקופת החולים שלכם לפרטים.',
+          'זכויות חולה: gov.il ← "זכויות המטופל".'],
+   tip:'💡 כל תושב ישראל זכאי לסל הבריאות — גם מי שאין לו הכנסה!',
+   canDo:['בדיקת תרופות בסל אונליין','בקשת אישורים בקופה'],
+   cantDo:['אישור תרופה חריגה — ועדה פיזית בקופה'],
+   links:[{t:'סל הבריאות — gov.il',u:'https://www.gov.il/he/departments/topics/health-basket',p:true},{t:'משרד הבריאות',u:'https://www.gov.il/he/departments/ministry_of_health'}],
+   ai:'אתה סייע בנושא סל הבריאות בישראל. בדיקת תרופות בסל: gov.il. תרופה שלא בסל: ועדת חריגים בקופה. ביטוח משלים (שב"ן): קופת החולים. ענה בעברית פשוטה.'
+  },
+  {id:'btl-loan', cat:'btl', icon:'🏦',
+   title:'הלוואה מביטוח לאומי',
+   desc:'הלוואה לאזרחים ותיקים בריבית נמוכה',
+   kw:['הלוואה','אשראי','כסף','חוב','ביטוח לאומי','הלוואה לוותיקים'],
+   steps:['זכאים: מקבלי קצבת זקנה מביטוח לאומי.',
+          'פנו לסניף ביטוח לאומי הקרוב לבקשת הלוואה.',
+          'ניתן גם לזמן תור: btl.gov.il ← זימון תור לסניף.',
+          'סכום ההלוואה ותנאיה נקבעים לפי הכנסה וגיל.'],
+   tip:'💡 ההלוואה נפרעת מהקצבה החודשית — אין צורך בהוראת קבע נפרדת.',
+   canDo:['זימון תור לסניף אונליין'],
+   cantDo:['בקשת הלוואה אונליין — ביקור בסניף חובה'],
+   links:[{t:'זימון תור לסניף — ביטוח לאומי',u:'https://www.btl.gov.il/snifim/Pages/default.aspx',p:true},{t:'רשם לענייני ירושה',u:'https://inheritance.justice.gov.il/'}],
+   ai:'אתה סייע בנושא הלוואה מביטוח לאומי לאזרחים ותיקים. זכאים: מקבלי קצבת זקנה. ביקור בסניף חובה. זימון תור אונליין: btl.gov.il. ענה בעברית פשוטה.'
+  },
+
+
+  // ── תיאום מס וקיבוע זכויות ──
+  {id:'tax-coordination', cat:'tax', icon:'📈',
+   title:'תיאום מס',
+   desc:'תיאום מס לעובדים ממספר מקומות עבודה',
+   kw:['תיאום מס','ניכוי מס','מעסיק','עובד','משכורת','תלוש','ניכוי במקור','מספר מעסיקים'],
+   steps:['כנסו לאתר secapp.taxes.gov.il ← בחרו תיאום מס.',
+          'בחרו את השנה הרלוונטית ואת המעסיקים.',
+          'הגישו — האישור ישלח ישירות למעסיק.',
+          'ניתן לבצע גם בסניף פקיד שומה הקרוב.'],
+   tip:'💡 חובה לתאם מס אם עובדים אצל יותר ממעסיק אחד!',
+   canDo:['תיאום מס אונליין','בקשה לניכוי מופחת'],
+   cantDo:['שאלות מורכבות — יועץ מס או פקיד שומה'],
+   links:[{t:'תיאום מס — secapp.taxes.gov.il',u:'https://secapp.taxes.gov.il',p:true}],
+   ai:'אתה סייע בנושא תיאום מס בישראל. secapp.taxes.gov.il. נדרש כשיש יותר ממעסיק אחד. ענה בעברית פשוטה.'
+  },
+  {id:'tax-rights', cat:'tax', icon:'📑',
+   title:'קיבוע זכויות במס הכנסה',
+   desc:'הקפאת נקודות זיכוי לגמלאים מגיל 60',
+   kw:['קיבוע זכויות','נקודות זיכוי','פנסיה','גמלאי','פרישה','הטבת מס','הכנסה מפנסיה','גיל 60'],
+   steps:['מגיל 60 ניתן לקבע זכויות על הכנסה מפנסיה — חיסכון במס.',
+          'כנסו לאתר secapp.taxes.gov.il ← בחרו קיבוע זכויות.',
+          'מלאו את הפרטים ← הגישו. האישור תקף לכל החיים.',
+          'לא עשיתם? ניתן לבקש החזר רטרואקטיבי עד 6 שנים אחורה.'],
+   tip:'💡 קיבוע זכויות יכול לחסוך אלפי שקלים בשנה — מומלץ לכל גמלאי!',
+   canDo:['הגשת בקשה אונליין','בקשת החזר רטרואקטיבי'],
+   cantDo:['ייעוץ אישי — יועץ מס'],
+   links:[{t:'קיבוע זכויות — מס הכנסה',u:'https://secapp.taxes.gov.il',p:true}],
+   ai:'אתה סייע בנושא קיבוע זכויות במס הכנסה לגמלאים בישראל. מגיל 60. secapp.taxes.gov.il. ניתן רטרואקטיבי 6 שנים. ענה בעברית פשוטה.'
+  },
+  {id:'rights-senior', cat:'btl', icon:'🌟',
+   title:'מיצוי זכויות לאזרח ותיק',
+   desc:'בדיקת כל ההטבות והזכויות המגיעות לך',
+   kw:['מיצוי זכויות','זכויות','הטבות','הנחות','ותיק','גמלאי','בדיקת זכאות','מה מגיע לי'],
+   steps:['פנו למשרד לשוויון חברתי: חייגו 8840.',
+          'עובד סוציאלי בעירייה יכול לבצע בדיקת זכויות מקיפה — ללא עלות.',
+          'בדקו זכאות ל: קצבת זקנה, השלמת הכנסה, סיעוד, הנחות ארנונה, חשמל, תרופות.',
+          'אתר כל-זכות מכיל מדריך מיצוי זכויות מפורט לאזרחים ותיקים.'],
+   tip:'💡 הרבה ותיקים לא מממשים זכויות שמגיעות להם — שווה לבדוק!',
+   canDo:['פנייה טלפונית 8840','בדיקה עצמית באתר כל-זכות'],
+   cantDo:['בדיקה מקיפה — דורשת פגישה עם עובד סוציאלי'],
+   links:[{t:'משרד לשוויון חברתי',u:'https://www.gov.il/he/departments/ministry_of_social_equality',p:true},{t:'מנוע הזכויות הלאומי',u:'https://www.gov.il/he/service/rights-engine'},{t:'ביטוח לאומי',u:'https://www.btl.gov.il'}],
+   ai:'אתה סייע בנושא מיצוי זכויות לאזרחים ותיקים בישראל. פנייה: *8840 או עובד סוציאלי. זכויות: קצבת זקנה, השלמת הכנסה, סיעוד, הנחות. ענה בעברית פשוטה.'
+  },
+  {id:'rights-disabled', cat:'btl', icon:'♿',
+   title:'תעודת נכה והטבות נכות',
+   desc:'תעודת נכה, תג נכה לחניה, הנחות תחבורה',
+   kw:['תעודת נכה','תג נכה','חניה','נכות','הנחה','תחבורה','נגישות','אחוזי נכות'],
+   steps:['תעודת נכה מונפקת לאחר קביעת אחוזי נכות ע"י גורם רפואי מוסמך.',
+          'תג נכה לחניה: פנו לרשות הרישוי עם אישור רפואי ← my.gov.il ← שיוך תג נכה לרכב.',
+          'הנחות בתחבורה ציבורית: הציגו תעודת נכה בקופה.',
+          'הנחות נוספות: ארנונה, טלפון, חשמל — בדקו מול כל גוף בנפרד.'],
+   tip:'💡 תג נכה לחניה ניתן לשייך לרכב שמסיע אתכם — לא חייב להיות הרכב שלכם!',
+   canDo:['שיוך תג נכה לרכב — my.gov.il','בקשת הנחות אונליין בחלק מהגופים'],
+   cantDo:['הנפקת תעודת נכה — ועדה רפואית פיזית חובה'],
+   links:[{t:'my.gov.il — שיוך תג נכה',u:'https://my.gov.il',p:true},{t:'נכות — ביטוח לאומי',u:'https://www.btl.gov.il/benefits/Disability/Pages/default.aspx'}],
+   ai:'אתה סייע בנושא תעודת נכה והטבות נכות בישראל. תג נכה לחניה: my.gov.il. הנחות תחבורה, ארנונה, חשמל. ועדה רפואית לקביעת אחוזים. ענה בעברית פשוטה.'
+  },
+  {id:'payments-electric', cat:'housing', icon:'💡',
+   title:'תשלום חשמל ומים',
+   desc:'תשלום אונליין, הנחות לוותיקים, עדכון פרטים',
+   kw:['חשמל','מים','תשלום','חוב','חשבון','חברת חשמל','מקורות','הנחה','ועד בית'],
+   steps:['תשלום חשמל: כנסו לאתר iec.co.il ← אזור אישי ← שלמו חשבון.',
+          'תשלום מים: אתר תאגיד המים של הרשות המקומית שלכם.',
+          'הנחת חשמל לנכים וותיקים: פנו לחברת החשמל עם אישור זכאות.',
+          'הנחת מים: פנו לתאגיד המים המקומי.'],
+   tip:'💡 ותיקים עם קצבת נכות או סיעוד זכאים להנחה של עד 50% בחשמל!',
+   canDo:['תשלום חשמל אונליין','בדיקת חוב','עדכון פרטי בנק'],
+   cantDo:['הנחה — דורשת הגשת מסמכים לחברת החשמל'],
+   links:[{t:'חברת חשמל — iec.co.il',u:'https://www.iec.co.il',p:true},{t:'הנחות חשמל — gov.il',u:'https://www.gov.il/he/departments/topics/electricity'}],
+   ai:'אתה סייע בנושא תשלום חשמל ומים בישראל. חשמל: iec.co.il. הנחה לנכים וותיקים עד 50%. מים: תאגיד מים מקומי. ענה בעברית פשוטה.'
+  },
+  {id:'payments-gov', cat:'tax', icon:'🏧',
+   title:'תשלומים לרשויות הממשלה',
+   desc:'תשלום קנסות, אגרות ורישיונות לממשלה',
+   kw:['תשלום','קנס','אגרה','רישיון','ממשלה','משרד','תשלום ממשלתי','רב קו','rav-kav'],
+   steps:['כנסו לאתר pay.gov.il — פורטל התשלומים הממשלתי.',
+          'בחרו סוג תשלום: קנס תנועה, אגרת דרכון, אגרת רישיון וכו.',
+          'שלמו בכרטיס אשראי — מקבלים קבלה מיידית.',
+          'רב-קו: טעינה באתר ravkav.co.il או בתחנות.'],
+   tip:'💡 pay.gov.il מרכז את רוב התשלומים לממשלה — חיסכון בזמן!',
+   canDo:['תשלום קנסות תנועה','תשלום אגרות','טעינת רב-קו'],
+   cantDo:['ערעור על קנס — יש לפנות לגורם המוציא'],
+   links:[{t:'פורטל תשלומים — pay.gov.il',u:'https://www.gov.il/he/pages/payments-services',p:true},{t:'קנסות תנועה — gov.il',u:'https://www.gov.il/he/pages/payments-services'}],
+   ai:'אתה סייע בנושא תשלומים לרשויות ממשלתיות בישראל. pay.gov.il לקנסות, אגרות, רישיונות. רב-קו: ravkav.co.il. ענה בעברית פשוטה.'
+  },
+  {id:'btl-holocaust', cat:'btl', icon:'✡️',
+   title:'זכויות ניצולי שואה',
+   desc:'תגמולים, קצבאות וזכויות מיוחדות לניצולים',
+   kw:['ניצול שואה','שואה','תגמול','רשות לזכויות','פיצויים','גרמניה','ניצולים'],
+   steps:['פנו לרשות לזכויות ניצולי שואה: 02-5600700.',
+          'בדקו זכאות ל: תגמול מהאוצר, גמלת סיעוד מיוחדת, הטבות נוספות.',
+          'פיצויים מגרמניה: פנו לגורם המטפל הרלוונטי לפי מוצאכם.',
+          'ניתן לפנות גם למשרד השוויון החברתי: 8840.'],
+   tip:'💡 הרבה ניצולים לא ממצים את כל זכויותיהם — כדאי לפנות לבדיקה מקיפה!',
+   canDo:['פנייה טלפונית','בדיקת זכאות'],
+   cantDo:['הגשת תביעות — לרוב דורש ליווי אישי'],
+   links:[{t:'רשות לזכויות ניצולי שואה',u:'https://www.gov.il/he/departments/holocaust_survivors_rights_authority',p:true}],
+   ai:'אתה סייע בנושא זכויות ניצולי שואה בישראל. רשות לזכויות ניצולי שואה: 02-5600700. תגמולים, קצבאות, פיצויים מגרמניה. ענה בעברית פשוטה.'
+  },
+  {id:'health-appointment', cat:'health', icon:'📅',
+   title:'קביעת תור לרופא — כל הקופות',
+   desc:'מדריך קביעת תורים בכל קופות החולים',
+   kw:['תור','קביעת תור','רופא','מומחה','רופא משפחה','ספציאליסט','תור דחוף','המתנה','ביטול תור'],
+   steps:['כנסו לאתר קופת החולים שלכם: כללית, מכבי, לאומית או מאוחדת.',
+          'כניסה עם ת"ז וסיסמה ← קביעת תור ← בחרו מומחה ורופא.',
+          'אין תורים? בדקו ביטולים בבוקר בין 8 ל-9 — לרוב מתפנים.',
+          'זכות לתור מומחה בתוך 30 יום — אם לא — פנו לקופה לדרישה.'],
+   tip:'💡 זכאים לתור מומחה תוך 30 יום. אם עובר — ניתן להתלונן למשרד הבריאות.',
+   canDo:['קביעת תור אונליין','ביטול ושינוי תור','בדיקת זמני המתנה'],
+   cantDo:['מצב חירום — 101 בלבד','החלפת קופה — רק ב-1 בינואר'],
+   links:[{t:'כללית',u:'https://www.clalit.co.il',p:true},{t:'מכבי',u:'https://www.maccabi4u.co.il'},{t:'לאומית',u:'https://www.leumit.co.il'},{t:'מאוחדת',u:'https://www.meuhedet.co.il'}],
+   ai:'אתה סייע בנושא קביעת תורים לרופאים בקופות חולים ישראל. זכות לתור מומחה תוך 30 יום. כללית: clalit.co.il, מכבי: maccabi4u.co.il, לאומית: leumit.co.il, מאוחדת: meuhedet.co.il. ענה בעברית פשוטה.'
+  },
+
+];
+
+// ════════════════════════════════
+//  עצי קטגוריות
+// ════════════════════════════════
+var CAT_MAP = {
+  btl:       { label:'🏦 ביטוח לאומי', ids:['btl-old','btl-nursing','btl-income','btl-disability','btl-caregiver','btl-loan','pension-main','rights-senior','rights-disabled','btl-holocaust'] },
+  health:    { label:'🏥 בריאות',       ids:['health-appointment','health-clalit','health-maccabi','health-leumit','health-meuhedet','health-hospital','health-basket'] },
+  id:        { label:'🔑 הזדהות',       ids:['id-login','id-mygov','piba-services','inheritance'] },
+  tax:       { label:'📄 מיסים',        ids:['tax-main','tax-coordination','tax-rights','payments-gov'] },
+  transport: { label:'🚗 תחבורה',      ids:['transport-driving','transport-license','transport-passport'] },
+  housing:   { label:'🏠 מגורים',      ids:['housing-address','housing-arnona','payments-electric'] },
+};
+
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+var state = { cat:null, catLabel:'', item:null, screen:1 };
+var pendingWAText = '';
+
+// ════════════════════════════════
+//  SCREENS
+// ════════════════════════════════
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active');
+  state.screen = n;
+  updateBreadcrumb();
+  window.scrollTo(0,0);
+}
+function goBack(n) { showScreen(n); }
+
+function updateBreadcrumb() {
+  var bc = document.getElementById('breadcrumb');
+  var parts = [];
+  if (state.catLabel) parts.push({l: state.catLabel, sc:1});
+  if (state.item && state.screen===3) parts.push({l: state.item.title, active:true});
+  var html = '';
+  parts.forEach(function(p,i){
+    if(i) html += '<span class="crumb-sep">›</span>';
+    html += '<span class="crumb'+(p.active?' active':'')+(p.sc?' style="cursor:pointer" onclick="goBack('+p.sc+')"':'')+'">'+p.l+'</span>';
+  });
+  bc.innerHTML = html;
+}
+
+// ════════════════════════════════
+//  חיפוש חופשי
+// ════════════════════════════════
+function searchNow() {
+  var el = document.getElementById('free-input');
+  if (!el) return;
+  var q = el.value.trim();
+  if (!q) return;
+
+  var area = document.getElementById('free-results');
+  var s1ai = document.getElementById('s1-ai-area');
+
+  // תמיד עובר ל-AI — הוא מבין הקשר טוב יותר מחיפוש מילות מפתח
+  area.innerHTML = '';
+  s1ai.classList.remove('hidden');
+  document.getElementById('s1-ai-typing').style.display = 'flex';
+  document.getElementById('s1-ai-content').innerHTML = '';
+
+  // אם התאמה חלשה — הצג AI
+  area.innerHTML = '';
+  s1ai.classList.remove('hidden');
+  document.getElementById('s1-ai-typing').style.display = 'flex';
+  document.getElementById('s1-ai-content').innerHTML = '';
+
+  var ctx = selectedMinistry ? 'בהקשר ' + selectedMinistry.label + ' בלבד. ' : '';
+  var fullSystem = ctx + 'סייע ממשלתי ישראלי לוותיקים. עברית. אתרים: btl.gov.il, my.gov.il, login.gov.il, secapp.taxes.gov.il, govextra.gov.il/piba/piba-services/first-page, inheritance.justice.gov.il, guardian.justice.gov.il, kolzchut.org.il, gov.il/he/service/foreign-worker-permit-nursing, gov.il/he/departments/units/senior-citizens-unit/govil-landing-page, clalit.co.il, maccabi4u.co.il, leumit.co.il, meuhedet.co.il, rishuy.mot.gov.il. פורמט חובה: **כותרת** 📋מסמכים:[רשימה] 📞טיפול לא אונליין:[טלפון] 1.שלב 2.שלב 3.שלב 🔗קישור:https://[כתובת מדויקת] 🔐הזדהות:[נדרש/לא] 💡טיפ';
+
+  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem))
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    document.getElementById('s1-ai-typing').style.display = 'none';
+    var text = (data.content && data.content[0] && data.content[0].text)
+      ? data.content[0].text
+      : 'מצטער, לא הצלחתי לקבל תשובה. נסו שוב.';
+    renderS1AI(text, q);
+  })
+  .catch(function(err){
+    document.getElementById('s1-ai-typing').style.display = 'none';
+    document.getElementById('s1-ai-content').innerHTML =
+      '<div style="color:#fca5a5;font-size:13px">⚠️ שגיאה: ' + (err ? err.toString() : 'unknown') + '</div>';
+  });
+}
+
+
+function renderS1AI(text, q) {
+  var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  var title = '', steps = [], tip = '', auth = '', docs = '', phone = '', link = '', extras = [];
+
+  lines.forEach(function(line){
+    if (line.startsWith('**') && line.endsWith('**')) title = line.replace(/\*\*/g,'');
+    else if (/^[1-9]\.\s/.test(line)) steps.push(line.replace(/^[1-9]\.\s/,''));
+    else if (line.startsWith('🔐')) auth = line;
+    else if (line.startsWith('💡')) tip = line;
+    else if (line.startsWith('📋')) docs = line;
+    else if (line.startsWith('📞')) phone = line;
+    else if (line.startsWith('🔗')) link = line;
+    else if (!title && steps.length === 0 && !docs) title = line.replace(/\*\*/g,'');
+    else if (title || steps.length > 0) extras.push(line);
+  });
+
+  var html = '';
+
+  // כותרת
+  if (title) html += '<div style="font-size:16px;font-weight:700;margin-bottom:12px;color:#f1f5f9">' + escH(title) + '</div>';
+
+  // מסמכים נדרשים
+  if (docs) html += '<div style="background:rgba(129,140,248,0.1);border-right:3px solid #818cf8;padding:9px 12px;border-radius:8px;font-size:13px;color:#c4b5fd;margin-bottom:10px">' + renderLinks(docs) + '</div>';
+
+  // טיפול שאינו אונליין
+  if (phone) html += '<div style="background:rgba(251,146,60,0.1);border-right:3px solid #fb923c;padding:9px 12px;border-radius:8px;font-size:13px;color:#fed7aa;margin-bottom:10px">' + renderLinks(phone) + '</div>';
+
+  // שלבים
+  steps.forEach(function(s, i){
+    html += '<div class="ai-step"><div class="ai-step-num">' + (i+1) + '</div><div class="ai-step-text">' + renderLinks(s) + '</div></div>';
+  });
+
+  // תוכן חופשי אם אין כלום
+  if (!title && !steps.length && !docs) html += '<div class="ai-content">' + renderLinks(text) + '</div>';
+
+  // קישור ישיר
+  if (link) html += '<div style="background:rgba(56,189,248,0.1);border:1.5px solid rgba(56,189,248,0.3);padding:10px 14px;border-radius:10px;font-size:13px;color:#38bdf8;margin-top:10px;font-weight:700">' + renderLinks(link) + '</div>';
+
+  // הזדהות
+  if (auth) {
+    var noAuth = auth.indexOf('לא נדרש') >= 0;
+    html += '<div style="background:' + (noAuth ? 'rgba(52,211,153,0.1)' : 'rgba(251,191,36,0.1)') + ';border-right:3px solid ' + (noAuth ? '#34d399' : '#fbbf24') + ';padding:9px 12px;border-radius:8px;font-size:13px;color:' + (noAuth ? '#34d399' : '#fde68a') + ';margin-top:10px">' + renderLinks(auth) + '</div>';
+  }
+
+  // טיפ
+  if (tip) html += '<div class="ai-tip" style="margin-top:10px">' + renderLinks(tip) + '</div>';
+
+  // כפתורים
+  var copyText = text.replace(/\*\*/g,'').trim();
+  html += '<div style="display:flex;gap:8px;margin-top:14px">';
+  html += '<button class="copy-btn" style="flex:1;padding:11px;border-radius:12px;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;">📋 העתק</button>';
+  html += '<button class="btn-reset" style="flex:1;margin-top:0" onclick="resetSearch()">🔄 שאלה חדשה</button>';
+  html += '</div>';
+
+  var el = document.createElement('div');
+  el.innerHTML = html;
+  var copyBtn = el.querySelector('.copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+      navigator.clipboard.writeText(copyText).then(function(){
+        copyBtn.innerText = '✓ הועתק!';
+        setTimeout(function(){ copyBtn.innerText = '📋 העתק'; }, 2000);
+      }).catch(function(){
+        copyBtn.innerText = '⚠️ העתקה נכשלה';
+        setTimeout(function(){ copyBtn.innerText = '📋 העתק'; }, 2000);
+      });
+    });
+  }
+  document.getElementById('s1-ai-content').innerHTML = '';
+  document.getElementById('s1-ai-content').appendChild(el);
+}
+
+function resetSearch() {
+  document.getElementById('free-input').value = '';
+  document.getElementById('free-results').innerHTML = '';
+  document.getElementById('s1-ai-area').classList.add('hidden');
+  document.getElementById('s1-ai-content').innerHTML = '';
+  if (typeof selectedMinistry !== 'undefined') selectedMinistry = null;
+  var bar = document.getElementById('selected-ministry-bar');
+  if (bar) bar.style.display = 'none';
+}
+
+function onFreeInput() {}
+function doFreeSearch() { searchNow(); }
+function freeSearch(q) { return []; }
+
+function renderFreeResults(matches, q) {
+  var area = document.getElementById('free-results');
+  if (!matches.length) { area.innerHTML=''; return; }
+  var html = '<div class="results-label">'+matches.length+' תוצאות</div>';
+  matches.forEach(function(item){
+    var t = q ? highlight(item.title,q) : item.title;
+    html += '<div class="result-card" onclick="openItem(\''+item.id+'\')">';
+    html += '<div class="r-title">'+item.icon+' '+t+'</div>';
+    html += '<div class="r-meta">'+item.desc+'</div></div>';
+  });
+  area.innerHTML = html;
+}
+
+function highlight(text,q){
+  var words=q.toLowerCase().split(/\s+/).filter(Boolean);
+  var result=text;
+  words.forEach(function(w){
+    var re=new RegExp('('+w+')','gi');
+    result=result.replace(re,'<mark>$1</mark>');
+  });
+  return result;
+}
+
+// ════════════════════════════════
+//  בחירת קטגוריה → תת-קטגוריה
+// ════════════════════════════════
+function selectCat(catId) {
+  var cat = CAT_MAP[catId];
+  if (!cat) return;
+  state.cat = catId;
+  state.catLabel = cat.label;
+  document.getElementById('s2-title').textContent = cat.label;
+  var list = document.getElementById('sub-list');
+  list.innerHTML = '';
+  cat.ids.forEach(function(id){
+    var item = DB.find(function(x){return x.id===id;});
+    if (!item) return;
+    var btn = document.createElement('button');
+    btn.className = 'sub-btn';
+    btn.innerHTML = '<span class="sub-icon">'+item.icon+'</span><div><div class="sub-label">'+item.title+'</div><div class="sub-desc">'+item.desc+'</div></div>';
+    btn.onclick = function(){ openItem(id); };
+    list.appendChild(btn);
+  });
+  showScreen(2);
+}
+
+// ════════════════════════════════
+//  פתיחת שירות → מסך 3
+// ════════════════════════════════
+function openItem(id) {
+  var item = DB.find(function(x){return x.id===id;});
+  if (!item) return;
+  state.item = item;
+
+  // כפתור חזרה
+  document.getElementById('s3-back-btn').onclick = state.catLabel
+    ? function(){ goBack(2); }
+    : function(){ goBack(1); };
+
+  // בנה תשובה סטטית
+  var html = '';
+
+  // כותרת
+  html += '<div style="font-size:20px;font-weight:900;margin-bottom:4px">'+item.icon+' '+item.title+'</div>';
+  html += '<div style="font-size:13px;color:var(--muted);margin-bottom:18px">'+item.desc+'</div>';
+
+  // שלבים
+  html += '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🪜 שלבים לביצוע</div>';
+  html += '<div style="margin-bottom:14px">';
+  item.steps.forEach(function(s,i){
+    html += '<div class="ai-step"><div class="ai-step-num">'+(i+1)+'</div><div class="ai-step-text">'+s+'</div></div>';
+  });
+  html += '</div>';
+
+  // טיפ
+  html += '<div class="ai-tip" style="margin-bottom:14px">'+item.tip+'</div>';
+
+  // ✅ / 🚫
+  html += '<div class="can-box yes"><div class="can-box-title">✅ ניתן לבצע אונליין</div><ul>';
+  item.canDo.forEach(function(x){ html+='<li>'+x+'</li>'; });
+  html += '</ul></div>';
+  html += '<div class="can-box no"><div class="can-box-title">🚫 דורש ביקור / טלפון</div><ul>';
+  item.cantDo.forEach(function(x){ html+='<li>'+x+'</li>'; });
+  html += '</ul></div>';
+
+  // קישורים ישירים
+  if (item.links && item.links.length) {
+    html += '<div style="font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 8px">🔗 קישורים ישירים</div>';
+    html += '<div class="link-btn-row">';
+    item.links.forEach(function(lnk){
+      html += '<a href="' + lnk.u + '" target="_blank" class="gov-link' + (lnk.p ? ' primary' : '') + '">🔗 ' + lnk.t + ' ↗</a>';
+    });
+    html += '</div>';
+  }
+
+  // כפתור העתקה
+  var plainText = item.icon+' '+item.title+'\n\n';
+  item.steps.forEach(function(s,i){ plainText+=(i+1)+'. '+s.replace(/<[^>]+>/g,'')+'\n'; });
+  plainText+='\n'+item.tip.replace(/<[^>]+>/g,'');
+  html += '<button class="item-copy-btn" style="width:100%;margin-top:14px;padding:12px;border-radius:14px;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;">📋 העתק מדריך</button>';
+  html += '<hr style="border:none;border-top:1px solid var(--border);margin:18px 0">';
+
+  var sa = document.getElementById('static-answer');
+  sa.innerHTML = html;
+  // כפתור העתקה — event listener נקי
+  var copyBtn = sa.querySelector('.item-copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      navigator.clipboard.writeText(plainText).then(function(){
+        copyBtn.innerText = '✓ הועתק!';
+        setTimeout(function(){ copyBtn.innerText = '📋 העתק מדריך'; }, 2000);
+      });
+    });
+  }
+  document.getElementById('followup-input').value = '';
+  showScreen(3);
+}
+
+// ════════════════════════════════
+//  שיח המשכי + AI
+// ════════════════════════════════
+var chatHistory = []; // היסטוריית שיח
+
+function callAIFree(q) {
+  state.item = null;
+  state.catLabel = '';
+  document.getElementById('s3-back-btn').onclick = function(){ goBack(1); };
+  document.getElementById('static-answer').innerHTML = '';
+  showScreen(3);
+  document.getElementById('ai-area').classList.remove('hidden');
+  document.getElementById('ai-typing').classList.remove('hidden');
+  document.getElementById('ai-content').innerHTML = '';
+  chatHistory = [];
+  callAI(q, 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. כלול שלבים ברורים וקישורים רלוונטיים.');
+}
+
+function doFollowup() {
+  var q = document.getElementById('followup-input').value.trim();
+  if (!q) return;
+  document.getElementById('followup-input').value = '';
+
+  // הצג הודעת משתמש בשיח
+  appendChatMsg(q, 'user');
+
+  // בנה הקשר מהפריט הנוכחי
+  var systemBase = state.item
+    ? state.item.ai
+    : 'אתה סייע לניווט בשירותים ממשלתיים ישראליים. ענה בעברית פשוטה ומעשית. אם מבקשים קישור — תן את הקישור המדויק.';
+
+  callAIWithHistory(q, systemBase);
+}
+
+function appendChatMsg(text, role) {
+  var content = document.getElementById('ai-content');
+  var div = document.createElement('div');
+
+  if (role === 'user') {
+    div.style.cssText = 'background:#1e3a5f;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px;color:#93c5fd;text-align:left;direction:ltr';
+    div.textContent = '👤 ' + text;
+  } else {
+    div.style.cssText = 'font-size:14px;color:#cbd5e1;line-height:1.9;margin:8px 0;padding-bottom:10px;border-bottom:1px solid #1e293b';
+
+    // המר טקסט לHTML
+    var html = text
+      // bold
+      .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#f1f5f9">$1</strong>')
+      // [טקסט](url)
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+        '<a href="$2" target="_blank" style="display:inline-flex;align-items:center;gap:4px;color:#38bdf8;text-decoration:none;background:rgba(56,189,248,0.1);padding:2px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.3)">$1 ↗</a>')
+      // https:// כתובת גולמית
+      .replace(/(https?:\/\/[^\s<\)]+)/g,
+        '<a href="$1" target="_blank" style="display:inline-flex;align-items:center;gap:4px;color:#38bdf8;text-decoration:none;background:rgba(56,189,248,0.1);padding:2px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.3)">$1 ↗</a>')
+      // כתובות בלי https (gov.il, btl.gov.il וכו')
+      .replace(/\b((?:[\w-]+\.)*gov\.il(?:\/[^\s<]*)?)/g, function(match) {
+        if (match.indexOf('://') >= 0) return match; // כבר טופל
+        var url = 'https://' + match;
+        return '<a href="' + url + '" target="_blank" style="display:inline-flex;align-items:center;gap:4px;color:#38bdf8;text-decoration:none;background:rgba(56,189,248,0.1);padding:2px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.3)">' + match + ' ↗</a>';
+      })
+      .replace(/\n/g, '<br>');
+
+    // אם התשובה מזכירה הזדהות/סיסמה — הוסף בלוק כניסה
+    if (text.match(/הזדה|סיסמ|כניסה|login|להתחבר|חשבון/)) {
+      html += '<div style="margin-top:12px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:10px;padding:12px 14px">'
+        + '<div style="font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:8px">🔐 שלבי הזדהות:</div>'
+        + '<div style="font-size:13px;color:#94a3b8;line-height:2">'
+        + '1. כנסו ל-<a href="https://login.gov.il" target="_blank" style="color:#38bdf8">login.gov.il ↗</a><br>'
+        + '2. הכניסו מספר ת"ז + סיסמה<br>'
+        + '3. הכניסו קוד SMS שנשלח לנייד<br>'
+        + '4. חזרו לשירות הרלוונטי — תהיו מחוברים'
+        + '</div>'
+        + '<div style="font-size:12px;color:#64748b;margin-top:6px">💡 הרשמה חד-פעמית — לאחר מכן הכניסה מהירה</div>'
+        + '</div>';
+    }
+
+    div.innerHTML = '🤖 ' + html;
+  }
+
+  content.appendChild(div);
+  content.parentElement.scrollTop = content.parentElement.scrollHeight;
+}
+
+function callAIWithHistory(question, systemBase) {
+  var aiArea = document.getElementById('ai-area');
+  aiArea.classList.remove('hidden');
+  document.getElementById('ai-typing').classList.remove('hidden');
+
+  // הוסף לשיח
+  chatHistory.push({ role: 'user', content: question });
+
+  var system = systemBase + '\n\nענה בעברית, בצורה פשוטה לאזרח ותיק. כשמבקשים קישור — חפש עם web_search באתרי gov.il הרשמיים ותחזיר את הקישור המדויק והעדכני. אל תחזור על מה שכבר נאמר בשיח.';
+
+  fetch(PROXY + '?question=' + encodeURIComponent(question) + '&system=' + encodeURIComponent(system.substring(0,600)))
+  var aiArea = document.getElementById('ai-area');
+  aiArea.classList.remove('hidden');
+  document.getElementById('ai-typing').classList.remove('hidden');
+  document.getElementById('ai-content').innerHTML = '';
+  chatHistory = []; // איפוס שיח בשאלה חדשה
+
+  var system = systemBase + '\n\nענה בעברית. הסבר בצורה פשוטה לאזרח ותיק. כתוב:\n**כותרת קצרה**\n1. שלב ראשון\n2. שלב שני\n3. שלב שלישי\n💡 טיפ קצר\nאם לא יודע — הפנה לטלפון הרלוונטי.';
+
+  fetch(PROXY+'?question='+encodeURIComponent(question)+'&system='+encodeURIComponent(system.substring(0,600)))
+  .then(function(r){return r.json();})
+  .then(function(data){
+    document.getElementById('ai-typing').classList.add('hidden');
+    var text='';
+    if(data.content&&data.content[0]&&data.content[0].text) text=data.content[0].text;
+    else if(data.error) text='⚠️ שגיאה: '+(data.error.message||'נסו שוב');
+    chatHistory.push({ role: 'assistant', content: text });
+    renderAI(text);
+  })
+  .catch(function(){
+    document.getElementById('ai-typing').classList.add('hidden');
+    document.getElementById('ai-content').innerHTML='<div style="color:#fca5a5;font-size:14px">⚠️ לא ניתן להתחבר. בדקו אינטרנט ונסו שוב.</div>';
+  });
+}
+
+function renderAI(text) {
+  var lines=text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var title='', steps=[], tip='', rest=[];
+  lines.forEach(function(line){
+    if(line.startsWith('**')&&line.endsWith('**')) title=line.replace(/\*\*/g,'');
+    else if(/^[1-5]\.\s/.test(line)) steps.push(line.replace(/^[1-5]\.\s/,''));
+    else if(line.startsWith('💡')) tip=line;
+    else if(!title&&steps.length===0) title=line.replace(/\*\*/g,'');
+    else rest.push(line);
+  });
+  var html='';
+  if(title) html+='<div style="font-size:16px;font-weight:700;margin-bottom:14px;color:var(--text)">'+escH(title)+'</div>';
+  if(steps.length){
+    html+='<div>';
+    steps.forEach(function(s,i){ html+='<div class="ai-step"><div class="ai-step-num">'+(i+1)+'</div><div class="ai-step-text">'+escH(s)+'</div></div>'; });
+    html+='</div>';
+  }
+  if(!title&&!steps.length) html+='<div class="ai-content">'+escH(text)+'</div>';
+  if(tip) html+='<div class="ai-tip">'+escH(tip)+'</div>';
+  if(rest.length) html+='<div style="font-size:13px;color:var(--muted);margin-top:10px">'+rest.map(escH).join('<br>')+'</div>';
+  document.getElementById('ai-content').innerHTML=html;
+}
+
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderLinks(s) {
+  var escaped = escH(s);
+  // המר כתובות — פעם אחת בלבד, מהארוך לקצר
+  // כתובות מלאות עם https://
+  escaped = escaped.replace(/(https?:\/\/[^\s&<"]+)/g,
+    '<a href="$1" target="_blank" style="color:#38bdf8;text-decoration:underline">$1 ↗</a>');
+  // domain.gov.il או domain.co.il בלי https — רק אם לא כבר בתוך href
+  escaped = escaped.replace(/(?<!href="|">)((?:[\w-]+\.)+(?:gov|co)\.il(?:\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?)/g, function(match) {
+    if (match.indexOf('://') >= 0) return match;
+    return '<a href="https://' + match + '" target="_blank" style="color:#38bdf8;text-decoration:underline">' + match + ' ↗</a>';
+  });
+  return escaped;
+}
+
+// ════════════════════════════════
+//  WA
+// ════════════════════════════════
+function openPhoneModal(){
+  document.getElementById('wa-modal').classList.remove('hidden');
+  document.getElementById('wa-phone-input').value='';
+  document.getElementById('wa-phone-input').focus();
+  document.getElementById('wa-modal-error').textContent='';
+}
+function closePhoneModal(){ document.getElementById('wa-modal').classList.add('hidden'); }
+function sendWANow(){
+  var raw=document.getElementById('wa-phone-input').value.trim().replace(/\D/g,'');
+  var err=document.getElementById('wa-modal-error');
+  if(raw.length<9){err.textContent='נא להכניס מספר תקין';return;}
+  var intl=raw.startsWith('0')?'972'+raw.slice(1):raw;
+  window.open('https://wa.me/'+intl+'?text='+pendingWAText,'_blank');
+  closePhoneModal();
+}
+
+// ════════════════════════════════
+//  RESET
+// ════════════════════════════════
+function resetAll(){
+  state={cat:null,catLabel:'',item:null,screen:1};
+  document.getElementById('free-input').value='';
+  document.getElementById('free-results').innerHTML='';
+  document.getElementById('static-answer').innerHTML='';
+  document.getElementById('ai-area').classList.add('hidden');
+  document.getElementById('followup-input').value='';
+  if (typeof selectedMinistry !== 'undefined') selectedMinistry = null;
+  var bar = document.getElementById('selected-ministry-bar');
+  if (bar) bar.style.display = 'none';
+  showScreen(1);
+}
+</script>
+</body>
+</html>
