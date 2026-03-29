@@ -1246,7 +1246,7 @@ function searchNow() {
   var ctx = selectedMinistry ? 'בהקשר ' + selectedMinistry.label + ' בלבד. ' : '';
   var fullSystem = ctx + 'סייע ממשלתי ישראלי לוותיקים. עברית בלבד. ענה בתבנית זו בדיוק: **כותרת** 📋מסמכים:[רשימה קצרה] 📞טלפון:[מספר] 1.שלב 2.שלב 3.שלב 🔗https://[קישור ישיר מדויק] 💡טיפ. אתרים: btl.gov.il, my.gov.il, gov.il, kolzchut.org.il, clalit.co.il, maccabi4u.co.il, inheritance.justice.gov.il, govextra.gov.il/piba';
 
-  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem))
+  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem.substring(0,500)))
   .then(function(r){ return r.json(); })
   .then(function(data){
     document.getElementById('s1-ai-typing').style.display = 'none';
