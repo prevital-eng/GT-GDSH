@@ -1244,9 +1244,9 @@ function searchNow() {
   document.getElementById('s1-ai-content').innerHTML = '';
 
   var ctx = selectedMinistry ? 'בהקשר ' + selectedMinistry.label + ' בלבד. ' : '';
-  var fullSystem = ctx + 'סייע ממשלתי ישראלי לוותיקים. עברית בלבד. ענה בתבנית זו בדיוק: **כותרת** 📋מסמכים:[רשימה קצרה] 📞טלפון:[מספר] 1.שלב 2.שלב 3.שלב 🔗https://[קישור ישיר מדויק] 💡טיפ. אתרים: btl.gov.il, my.gov.il, gov.il, kolzchut.org.il, clalit.co.il, maccabi4u.co.il, inheritance.justice.gov.il, govextra.gov.il/piba';
+  var fullSystem = ctx + 'סייע ממשלתי ישראלי לוותיקים. עברית בלבד. חובה: כל פסקה ושלב בשורה נפרדת. ענה בתבנית זו בדיוק, כל סעיף בשורה חדשה: **כותרת** 📋מסמכים:[רשימה] 📞טלפון:[מספר] 1.שלב ראשון 2.שלב שני 3.שלב שלישי 🔗https://[קישור] 💡טיפ. אתרים: btl.gov.il, my.gov.il, gov.il, kolzchut.org.il, clalit.co.il, maccabi4u.co.il, inheritance.justice.gov.il, govextra.gov.il/piba';
 
-  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem.substring(0,500)))
+  fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem.substring(0,700)))
   .then(function(r){ return r.json(); })
   .then(function(data){
     document.getElementById('s1-ai-typing').style.display = 'none';
@@ -1264,11 +1264,22 @@ function searchNow() {
 
 
 function renderS1AI(text, q) {
+  // נרמל שורות — הוסף ירידת שורה לפני כל סמל תבנית
+  text = text
+    .replace(/\s*(📋)/g, '\n$1')
+    .replace(/\s*(📞)/g, '\n$1')
+    .replace(/\s*(\d+\.)\s*/g, '\n$1 ')
+    .replace(/\s*(🔗)/g, '\n$1')
+    .replace(/\s*(🔐)/g, '\n$1')
+    .replace(/\s*(💡)/g, '\n$1')
+    .replace(/\n{3,}/g, '\n');
+
   var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   var title = '', steps = [], tip = '', auth = '', docs = '', phone = '', link = '', extras = [];
 
   lines.forEach(function(line){
     if (line.startsWith('**') && line.endsWith('**')) title = line.replace(/\*\*/g,'');
+    else if (line.startsWith('**') && !title) title = line.replace(/\*\*/g,'');
     else if (/^[1-9]\.\s/.test(line)) steps.push(line.replace(/^[1-9]\.\s/,''));
     else if (line.startsWith('🔐')) auth = line;
     else if (line.startsWith('💡')) tip = line;
