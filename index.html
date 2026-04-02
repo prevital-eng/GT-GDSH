@@ -1326,7 +1326,15 @@ function renderS1AI(text, q) {
   if (tip) html += '<div class="ai-tip" style="margin-top:10px">' + renderLinks(tip) + '</div>';
 
   // כפתורים
+  // בנה טקסט להעתקה — כולל קישור מלא
   var copyText = text.replace(/\*\*/g,'').trim();
+  // אם הקישור קוצר בתצוגה — הוסף אותו מפורשות
+  if (link) {
+    var urlMatch = link.match(/(https?:\/\/[^\s]+)/);
+    if (urlMatch && copyText.indexOf(urlMatch[1]) < 0) {
+      copyText += '\n' + urlMatch[1];
+    }
+  }
   html += '<div style="display:flex;gap:8px;margin-top:14px">';
   html += '<button class="copy-btn" style="flex:1;padding:11px;border-radius:12px;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;">📋 העתק</button>';
   html += '<button class="btn-reset" style="flex:1;margin-top:0" onclick="resetSearch()">🔄 שאלה חדשה</button>';
@@ -1626,12 +1634,20 @@ function renderAI(text) {
 function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function renderLinks(s) {
-  var escaped = escH(s);
-  // המר כתובות — פעם אחת בלבד, מהארוך לקצר
-  // כתובות מלאות עם https://
-  escaped = escaped.replace(/(https?:\/\/[^\s&<"]+)/g,
-    '<a href="$1" target="_blank" style="color:#38bdf8;text-decoration:underline">$1 ↗</a>');
-  // domain.gov.il או domain.co.il בלי https — רק אם לא כבר בתוך href
+  // שמור קישורים לפני escape
+  var links = [];
+  var placeholder = s.replace(/(https?:\/\/[^\s<"]+)/g, function(url) {
+    links.push(url);
+    return '\x00LINK' + (links.length-1) + '\x00';
+  });
+  // escape שאר הטקסט
+  var escaped = escH(placeholder);
+  // החזר קישורים
+  escaped = escaped.replace(/\x00LINK(\d+)\x00/g, function(m, i) {
+    var url = links[parseInt(i)];
+    return '<a href="' + url + '" target="_blank" style="color:#38bdf8;text-decoration:underline">' + url + ' ↗</a>';
+  });
+  // כתובות gov.il בלי https
   escaped = escaped.replace(/(?<!href="|">)((?:[\w-]+\.)+(?:gov|co)\.il(?:\/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?)/g, function(match) {
     if (match.indexOf('://') >= 0) return match;
     return '<a href="https://' + match + '" target="_blank" style="color:#38bdf8;text-decoration:underline">' + match + ' ↗</a>';
