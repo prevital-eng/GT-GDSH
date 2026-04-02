@@ -1268,6 +1268,7 @@ function renderS1AI(text, q) {
   text = text
     .replace(/\s*(📋)/g, '\n$1')
     .replace(/\s*(📞)/g, '\n$1')
+    .replace(/\s*(🌐)/g, '\n$1')
     .replace(/\s*(\d+\.)\s*/g, '\n$1 ')
     .replace(/\s*(🔗)/g, '\n$1')
     .replace(/\s*(🔐)/g, '\n$1')
@@ -1313,8 +1314,18 @@ function renderS1AI(text, q) {
   // תוכן חופשי אם אין כלום
   if (!title && !steps.length && !docs) html += '<div class="ai-content">' + renderLinks(text) + '</div>';
 
-  // קישור ישיר
-  if (link) html += '<div style="background:rgba(56,189,248,0.1);border:1.5px solid rgba(56,189,248,0.3);padding:10px 14px;border-radius:10px;font-size:13px;color:#38bdf8;margin-top:10px;font-weight:700">' + renderLinks(link) + '</div>';
+  // קישור ישיר — חלץ URL מהשורה ובנה קישור נקי
+  if (link) {
+    var urlMatch = link.match(/(https?:\/\/[^\s]+)/);
+    if (urlMatch) {
+      var url = urlMatch[1];
+      var label = link.replace(/🔗\s*(קישור\s*ישיר\s*:?\s*)?/,'').replace(/(https?:\/\/[^\s]+)/,'').trim() || url;
+      html += '<div style="background:rgba(56,189,248,0.1);border:1.5px solid rgba(56,189,248,0.3);padding:10px 14px;border-radius:10px;font-size:13px;margin-top:10px;font-weight:700">'
+        + '<a href="' + url + '" target="_blank" style="color:#38bdf8;text-decoration:underline">🔗 ' + escH(url) + ' ↗</a></div>';
+    } else {
+      html += '<div style="background:rgba(56,189,248,0.1);border:1.5px solid rgba(56,189,248,0.3);padding:10px 14px;border-radius:10px;font-size:13px;color:#38bdf8;margin-top:10px;font-weight:700">' + renderLinks(link) + '</div>';
+    }
+  }
 
   // הזדהות
   if (auth) {
