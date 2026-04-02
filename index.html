@@ -1244,7 +1244,7 @@ function searchNow() {
   document.getElementById('s1-ai-content').innerHTML = '';
 
   var ctx = selectedMinistry ? 'בהקשר ' + selectedMinistry.label + ' בלבד. ' : '';
-  var fullSystem = ctx + 'סייע ממשלתי ישראלי לוותיקים. עברית בלבד. חובה: כל פסקה ושלב בשורה נפרדת. ענה בתבנית זו בדיוק, כל סעיף בשורה חדשה: **כותרת** 📋מסמכים:[רשימה] 📞טלפון:[מספר] 1.שלב ראשון 2.שלב שני 3.שלב שלישי 🔗https://[קישור] 💡טיפ. אתרים: btl.gov.il, my.gov.il, gov.il, kolzchut.org.il, clalit.co.il, maccabi4u.co.il, inheritance.justice.gov.il, govextra.gov.il/piba';
+  var fullSystem = ctx + 'סייע ממשלתי ישראלי לוותיקים. עברית בלבד. חובה: כל סעיף בשורה נפרדת. ענה בתבנית הזו בדיוק: **כותרת** 📋מסמכים:[רשימה] 📞אפשרות א — טלפון או ביקור:[פרטים] 🌐אפשרות ב — אונליין: 1.שלב ראשון 2.שלב שני 3.שלב שלישי 🔗קישור ישיר: https://[כתובת מלאה] 💡טיפ. אתרים: btl.gov.il, my.gov.il, gov.il, kolzchut.org.il, clalit.co.il, maccabi4u.co.il, inheritance.justice.gov.il, govextra.gov.il/piba';
 
   fetch(PROXY + '?question=' + encodeURIComponent(q) + '&system=' + encodeURIComponent(fullSystem.substring(0,700)))
   .then(function(r){ return r.json(); })
@@ -1275,7 +1275,7 @@ function renderS1AI(text, q) {
     .replace(/\n{3,}/g, '\n');
 
   var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
-  var title = '', steps = [], tip = '', auth = '', docs = '', phone = '', link = '', extras = [];
+  var title = '', steps = [], tip = '', auth = '', docs = '', phone = '', link = '', online = '', extras = [];
 
   lines.forEach(function(line){
     if (line.startsWith('**') && line.endsWith('**')) title = line.replace(/\*\*/g,'');
@@ -1285,6 +1285,7 @@ function renderS1AI(text, q) {
     else if (line.startsWith('💡')) tip = line;
     else if (line.startsWith('📋')) docs = line;
     else if (line.startsWith('📞')) phone = line;
+    else if (line.startsWith('🌐')) online = line;
     else if (line.startsWith('🔗')) link = line;
     else if (!title && steps.length === 0 && !docs) title = line.replace(/\*\*/g,'');
     else if (title || steps.length > 0) extras.push(line);
@@ -1300,6 +1301,9 @@ function renderS1AI(text, q) {
 
   // טיפול שאינו אונליין
   if (phone) html += '<div style="background:rgba(251,146,60,0.1);border-right:3px solid #fb923c;padding:9px 12px;border-radius:8px;font-size:13px;color:#fed7aa;margin-bottom:10px">' + renderLinks(phone) + '</div>';
+
+  // אפשרות אונליין
+  if (online) html += '<div style="background:rgba(56,189,248,0.08);border-right:3px solid #38bdf8;padding:9px 12px;border-radius:8px;font-size:13px;color:#7dd3fc;margin-bottom:10px">' + renderLinks(online) + '</div>';
 
   // שלבים
   steps.forEach(function(s, i){
