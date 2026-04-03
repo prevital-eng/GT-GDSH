@@ -351,7 +351,7 @@ body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--tex
   <!-- HEADER -->
   <div class="header">
     <div class="logo-row">
-      <img src="https://prevital-eng.github.io/GT-GDSH/logo.png" style="width:32px;height:32px;border-radius:50%;object-fit:cover" alt="GimlaTech">
+      <img src="https://prevital-eng.github.io/GT-GDSH/logo.png" style="width:48px;height:48px;border-radius:50%;object-fit:cover" alt="GimlaTech">
       <div>
         <div class="logo-text">Gimla<span>Tech</span></div>
         <div class="logo-sub">שירותים ממשלתיים דיגיטליים</div>
@@ -1338,14 +1338,16 @@ function renderS1AI(text, q) {
 
   // כפתורים
   // בנה טקסט להעתקה — כולל קישור מלא
-  var copyText = text.replace(/\*\*/g,'').trim();
-  // אם הקישור קוצר בתצוגה — הוסף אותו מפורשות
-  if (link) {
-    var urlMatch = link.match(/(https?:\/\/[^\s]+)/);
-    if (urlMatch && copyText.indexOf(urlMatch[1]) < 0) {
-      copyText += '\n' + urlMatch[1];
-    }
-  }
+  // בנה טקסט מלא להעתקה מכל חלקי התשובה
+  var copyParts = [];
+  if (title) copyParts.push(title);
+  if (docs) copyParts.push(docs);
+  if (phone) copyParts.push(phone);
+  if (online) copyParts.push(online);
+  steps.forEach(function(s,i){ copyParts.push((i+1)+'. '+s); });
+  if (link) { var um = link.match(/(https?:\/\/[^\s]+)/); copyParts.push(um ? um[1] : link); }
+  if (tip) copyParts.push(tip);
+  var copyText = copyParts.length > 0 ? copyParts.join('\n') : text.replace(/\*\*/g,'').trim();
   html += '<div style="display:flex;gap:8px;margin-top:14px">';
   html += '<button class="copy-btn" style="flex:1;padding:11px;border-radius:12px;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer;font-family:Heebo,sans-serif;">📋 העתק</button>';
   html += '<button class="btn-reset" style="flex:1;margin-top:0" onclick="resetSearch()">🔄 שאלה חדשה</button>';
